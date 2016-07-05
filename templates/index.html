@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>@TITLE@</title>
+<style>
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#chart path {
+	stroke: #777;
+	stroke-width: 0.1px;
+}
+
+#chart .labels {
+	fill: #aaa;
+	letter-spacing: -1px;
+}
+#chart .labels.segment {
+	font-size: 10px;
+}
+@STYLE@
+</style>
+
+</head>
+<body>
+<h2>@TITLE@</h2>
+<div class="chart" id="chart"></div>
+<div class="info" id="info"></div>
+<script src="d3.min.js" type="text/JavaScript"></script>
+<script src="circularHeatChart.js" type="text/JavaScript"></script>
+<script>
+@SCRIPT@
+</script>
+</body>
+</html>
+

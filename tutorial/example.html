@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style>
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.chart path {
+	stroke: #777;
+	stroke-width: 0.1px;
+}
+
+.chart .labels {
+	fill: #aaa;
+	letter-spacing: -1px;
+}
+.chart .labels.segment {
+	font-size: 10px;
+}
+#chart1 svg {
+	height: 476px;
+	width: 476px;
+}
+#chart2 svg {
+	height: 380px;
+	width: 380px;
+}
+#chart3 svg {
+	height: 380px;
+	width: 380px;
+}
+
+</style>
+
+</head>
+<body>
+<h2>QGIS D3 Circular Heatmap Tutorial</h2>
+<p>This tutorial makes use of the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2">2006 Chicago crime data</a>. The data was subsampled and columns were deleted for the sake of this tutorial. Even after subsampling, there are 183,984 data points. In total there were 367,968 incidents in 2006. That is a lot of crime for one year in just one city. If you wish to follow along the data set used is in the tutorial folder of this repository.</p>
+<h3>Heatmap by Month and Day of the Week</h3>
+<div class="chart" id="chart2"></div>
+<div class="info" id="info2"></div>
+<p>Although not trained in crime, simply by looking at this graph one can make some observations. The least amount of crime occurs during the months of January, February and March. This is probably due to the cold. If that is the case way does December have a high crime rate. That is probably because of the holiday season.</p>
+<h3>Heatmap by Hour of day and Day of the Week</h3>
+<div class="chart" id="chart3"></div>
+<div class="info" id="info3"></div>
+<p>In this graph it appears that crime increase from 6pm to 11pm. The worst crime occurs from midnight to 1am. More difficult jobs must be taking place on the weekend where there is an increase of activity from 1am to 3am. During the day from Noon to 1pm there is also an increase of crime.</p>
+<h3>Heatmap by Hour of day and Month</h3>
+<div class="chart" id="chart1"></div>
+<div class="info" id="info1"></div>
+<p>Here we see a similar pattern. Crime is less during January, February, and March. Crime increases starting from about 6pm to 11pm and then from Midnight to 1am plans are executed. This graph also shows the increased crime from Noon to 1pm.</p>
+<script src="d3.min.js" type="text/JavaScript"></script>
+<script src="circularHeatChart.js" type="text/JavaScript"></script>
+<script>
+var segHeight2=20;
+var segCnt2=12;
+var bandCnt2=7;
+var segLabels2=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var bandLabels2=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+var innerRadius2=25;
+var edata2=[197,779,2046,4701,6425,5049,6659,5112,4531,5807,4730,4002,210,780,2303,5083,6537,5066,5336,6575,5053,6390,4905,4473,128,953,3461,4905,6582,5343,5478,6439,4911,4936,6178,4725,144,782,3335,5056,4976,6620,5261,6462,5034,4776,5656,4625,141,766,3534,5157,5431,6676,5408,5409,6907,5411,4910,6002,173,681,1793,6263,4985,5089,6899,5347,6478,5074,4780,5507,669,635,1898,5253,4618,4911,6422,5111,4786,6213,4355,4761];
+var chart2 = circularHeatChart()
+	.segmentHeight(segHeight2)
+	.innerRadius(innerRadius2)
+	.numSegments(segCnt2)
+	.segmentLabels(segLabels2)
+	.radialLabels(bandLabels2);
+d3.select('#chart2')
+	.selectAll('svg')
+	.data([edata2])
+	.enter()
+	.append('svg')
+	.call(chart2);
+d3.selectAll("#chart2 path").on('mouseover', function() {
+	var d = d3.select(this).data();
+	d3.select("#info2").text('Histogram count: ' + d);
+});
+
+var segHeight3=20;
+var segCnt3=24;
+var bandCnt3=7;
+var segLabels3=["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"];
+var bandLabels3=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+var innerRadius3=25;
+var edata3=[2927,1434,1166,843,664,660,828,1219,1856,2102,2069,2119,2871,2441,2478,2626,2547,2609,2730,2941,2896,2913,2795,2304,2845,1475,1091,857,641,623,817,1382,1930,2358,2096,2281,3084,2634,2719,2770,2520,2654,2807,3158,3226,3261,3074,2408,3097,1486,1177,842,619,671,866,1437,2021,2429,2239,2428,3302,2691,2774,2743,2615,2710,2988,3101,3195,3182,3053,2373,2847,1440,1168,920,656,593,877,1398,2001,2441,2264,2363,3114,2600,2728,2831,2520,2536,2746,2980,3104,3099,2999,2502,3209,1599,1278,988,713,635,836,1352,1954,2362,2445,2438,3409,2689,2752,2978,2801,2690,2858,2918,3035,3296,3493,3024,3522,2439,2044,1765,1215,874,760,887,1303,1887,2099,2207,2777,2294,2318,2357,2347,2543,2578,2656,2888,3162,3219,2928,3699,2447,2189,1888,1378,1022,816,869,1130,1647,1694,1878,2427,2091,2035,2135,2175,2180,2511,2698,2809,2745,2792,2377];
+var chart3 = circularHeatChart()
+	.segmentHeight(segHeight3)
+	.innerRadius(innerRadius3)
+	.numSegments(segCnt3)
+	.segmentLabels(segLabels3)
+	.radialLabels(bandLabels3);
+d3.select('#chart3')
+	.selectAll('svg')
+	.data([edata3])
+	.enter()
+	.append('svg')
+	.call(chart3);
+d3.selectAll("#chart3 path").on('mouseover', function() {
+	var d = d3.select(this).data();
+	d3.select("#info3").text('Histogram count: ' + d);
+});
+
+var segHeight1=16;
+var segCnt1=24;
+var bandCnt1=12;
+var segLabels1=["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"];
+var bandLabels1=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var innerRadius1=25;
+var edata1=[426,42,25,19,8,7,18,43,94,162,69,48,160,65,54,60,38,36,44,49,46,53,44,52,341,134,79,52,39,30,41,82,130,208,209,254,409,307,261,244,208,205,238,330,433,429,386,327,947,479,392,305,217,206,292,417,628,832,757,836,1201,940,953,1002,879,885,913,1083,1092,1124,1096,894,2222,1235,936,836,616,527,566,741,1165,1410,1451,1536,2040,1718,1789,1829,1781,1748,1988,2073,2112,2162,2127,1810,2089,1309,1153,841,592,521,629,945,1389,1679,1633,1756,2261,1954,1974,1971,1885,1986,2044,2139,2262,2320,2274,1948,2329,1393,1103,905,633,546,622,861,1175,1503,1510,1526,2201,1797,1903,1902,1815,1948,2038,2168,2214,2285,2437,1940,2639,1638,1369,1066,823,689,667,902,1264,1483,1575,1596,2236,1821,1912,1895,1921,2003,2126,2289,2343,2441,2573,2192,2581,1530,1281,982,755,666,711,1007,1208,1497,1627,1577,2149,1853,1794,1911,1847,2010,2128,2173,2269,2429,2393,2077,2230,1245,1030,858,617,537,605,906,1234,1584,1613,1657,2119,1775,1780,1912,1847,1799,1984,2013,2103,2212,2217,1823,2183,1211,928,784,556,470,564,972,1406,1757,1581,1709,2189,1846,1878,2070,1855,1967,2030,2201,2312,2303,2080,1755,2082,1066,912,705,503,471,557,874,1301,1613,1490,1702,1993,1712,1774,1876,1774,1677,1876,2006,2146,1944,1873,1587,2077,1038,905,750,527,408,528,794,1201,1498,1391,1517,2026,1652,1732,1768,1675,1658,1809,1928,1821,1956,1925,1511];
+var chart1 = circularHeatChart()
+	.segmentHeight(segHeight1)
+	.innerRadius(innerRadius1)
+	.numSegments(segCnt1)
+	.segmentLabels(segLabels1)
+	.radialLabels(bandLabels1);
+d3.select('#chart1')
+	.selectAll('svg')
+	.data([edata1])
+	.enter()
+	.append('svg')
+	.call(chart1);
+d3.selectAll("#chart1 path").on('mouseover', function() {
+	var d = d3.select(this).data();
+	d3.select("#info1").text('Histogram count: ' + d);
+});
+
+</script>
+</body>
+</html>
+
