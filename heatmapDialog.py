@@ -7,8 +7,6 @@ from PyQt4 import uic, QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-
-
 from qgis.core import *
 from qgis.gui import *
 
@@ -124,10 +122,24 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
                 return dt.day()
             elif requestedField == 3: # Day of Week
                 return dt.dayOfWeek() - 1
+                
+        if isinstance(dt, QDateTime):
+            if requestedField == 0: # Year
+                return dt.date().year()
+            elif requestedField == 1: # Month
+                return dt.date().month()
+            elif requestedField == 2: # Day
+                return dt.date().day()
+            elif requestedField == 3: # Day of Week
+                return dt.date().dayOfWeek() - 1
+            elif requestedField == 4 and time is None:
+                return dt.time().hour()
         
         if requestedField == 4 and time is not None:
             if isinstance(time, QTime):
                 return time.hour()
+            elif isinstance(time, QDateTime):
+                return time.time().hour()
             else:
                 d = dateutil.parser.parse(time)
                 return d.hour
