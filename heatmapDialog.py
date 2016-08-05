@@ -70,10 +70,17 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         if len(self.foundLayers) == 0:
             return
         selectedLayer = self.layerComboBox.currentIndex()
-        for field in self.foundLayers[selectedLayer].pendingFields():
-            self.dtComboBox.addItem(field.name())
-            self.dateComboBox.addItem(field.name())
-            self.timeComboBox.addItem(field.name())
+        for idx, field in enumerate(self.foundLayers[selectedLayer].pendingFields()):
+            ft = field.type()
+            if ft == QVariant.String or ft == QVariant.DateTime:
+                self.dtComboBox.addItem(field.name(), idx)
+                self.dateComboBox.addItem(field.name(), idx)
+                self.timeComboBox.addItem(field.name(), idx)
+            elif ft == QVariant.Date:
+                self.dtComboBox.addItem(field.name(), idx)
+                self.dateComboBox.addItem(field.name(), idx)
+            elif ft == QVariant.Time:
+                self.timeComboBox.addItem(field.name(), idx)                
         self.enableComponents()
     
     def enableComponents(self):
@@ -88,9 +95,9 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         
     def readChartParams(self):
         self.selectedLayer = self.foundLayers[self.layerComboBox.currentIndex()]
-        self.selectedDateTimeCol = self.dtComboBox.currentIndex()
-        self.selectedDateCol = self.dateComboBox.currentIndex()
-        self.selectedTimeCol = self.timeComboBox.currentIndex()
+        self.selectedDateTimeCol = self.dtComboBox.itemData(self.dtComboBox.currentIndex())
+        self.selectedDateCol = self.dateComboBox.itemData(self.dateComboBox.currentIndex())
+        self.selectedTimeCol = self.timeComboBox.itemData(self.timeComboBox.currentIndex())
         self.selectedRadialUnit = self.radialComboBox.currentIndex()
         self.selectedCircleUnit = self.circleComboBox.currentIndex()
         self.showRadialLabels = self.radialLabelCheckBox.isChecked()
@@ -109,11 +116,23 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         except:
             self.chartBandHeight = 16
             self.bandHeightEdit.setText('16')
+        self.beginningColor = self.startColor.color().name()
+        self.endingColor = self.endColor.color().name()
 
-    def parseDateTimeValues(self, requestedField, dt, time=None):
+    def parseDateTimeValues(self, requestedField, dt, time):
         '''This returns the requested date or time value from a datetime
            date only and/or time only field. Note that it can throw an exception.'''
-        if isinstance(dt, QDate):
+        
+        if requestedField == 4:
+            # We are only interested in the hour of the day
+            if isinstance(time, QTime):
+                return time.hour()
+            elif isinstance(time, QDateTime):
+                return time.time().hour()
+            else: # Parse it as a string
+                d = dateutil.parser.parse(time)
+                return d.hour
+        elif isinstance(dt, QDate):
             if requestedField == 0: # Year
                 return dt.year()
             elif requestedField == 1: # Month
@@ -122,8 +141,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
                 return dt.day()
             elif requestedField == 3: # Day of Week
                 return dt.dayOfWeek() - 1
-                
-        if isinstance(dt, QDateTime):
+        elif isinstance(dt, QDateTime):
             if requestedField == 0: # Year
                 return dt.date().year()
             elif requestedField == 1: # Month
@@ -131,32 +149,19 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
             elif requestedField == 2: # Day
                 return dt.date().day()
             elif requestedField == 3: # Day of Week
-                return dt.date().dayOfWeek() - 1
-            elif requestedField == 4 and time is None:
-                return dt.time().hour()
+                return dt.date().dayOfWeek() - 1        
+        else: # Parse as a string
+            d = dateutil.parser.parse(dt)
+            if requestedField == 0:
+                return d.year
+            elif requestedField == 1:
+                return d.month
+            elif requestedField == 2:
+                return d.day
+            elif requestedField == 3:
+                return d.weekday()
         
-        if requestedField == 4 and time is not None:
-            if isinstance(time, QTime):
-                return time.hour()
-            elif isinstance(time, QDateTime):
-                return time.time().hour()
-            else:
-                d = dateutil.parser.parse(time)
-                return d.hour
-                
-        d = dateutil.parser.parse(dt)
-        if requestedField == 0:
-            return d.year
-        elif requestedField == 1:
-            return d.month
-        elif requestedField == 2:
-            return d.day
-        elif requestedField == 3:
-            return d.weekday()
-        else:
-            return d.hour
-        # Not sure if we will ever reach this point, but if so throw an exception
-        raise ValueError('Improper date or time')
+        raise ValueError('The only supported data types are QString, QDateTime, QDate, and QTime')
                 
     def createChart(self):
         if len(self.foundLayers) == 0:
@@ -180,8 +185,8 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         for f in iter:
             try:
                 if isdt:
-                    rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateTimeCol])
-                    cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateTimeCol])
+                    rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
+                    cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
                 else:
                     rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
                     cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
@@ -213,13 +218,15 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         script.append('var bandLabels={};'.format(cvunits))
         script.append('var innerRadius={};'.format(self.chartInnerRadius))
         script.append('var edata=[{}];'.format(datastr))
+        script.append('var startColor="{}";'.format(self.beginningColor))
+        script.append('var endColor="{}";'.format(self.endingColor))
         rl = ''
         if self.showRadialLabels:
             rl = '\n\t.segmentLabels(segLabels)'
         bl = ''
         if self.showBandLabels:
             bl = '\n\t.radialLabels(bandLabels)'
-        script.append('var chart = circularHeatChart()\n\t.segmentHeight(segHeight)\n\t.innerRadius(innerRadius)\n\t.numSegments(segCnt){}{};'
+        script.append('var chart = circularHeatChart()\n\t.range([startColor,endColor])\n\t.segmentHeight(segHeight)\n\t.innerRadius(innerRadius)\n\t.numSegments(segCnt){}{};'
                 .format(rl, bl))
         script.append('d3.select(\'#chart\')\n\t.selectAll(\'svg\')\n\t.data([edata])\n\t.enter()\n\t.append(\'svg\')\n\t.call(chart);')
         
