@@ -35,10 +35,9 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         self.layerComboBox.activated.connect(self.userSelectsLayer)
         self.dtRadioButton.clicked.connect(self.enableComponents)
         self.notdtRadioButton.clicked.connect(self.enableComponents)
-        self.okButton.clicked.connect(self.createChart)
-        self.closeButton.clicked.connect(self.close)
         self.radialComboBox.addItems(OPTIONMENU)
         self.circleComboBox.addItems(OPTIONMENU)
+        self.buttonBox.button(QDialogButtonBox.Ok).setText("Create Chart")
 
         
     def showEvent(self, event):
@@ -163,7 +162,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         
         raise ValueError('The only supported data types are QString, QDateTime, QDate, and QTime')
                 
-    def createChart(self):
+    def accept(self):
         if len(self.foundLayers) == 0:
             return
         self.readChartParams()
@@ -292,11 +291,8 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         else:
             minval = 0
             maxval = 23
-            str = '["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "Noo", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"]'
+            str = '["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "Noon", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"]'
         return minval, maxval, str
-        
-    def close(self):
-        self.hide()
         
 def replaceInTemplate(template, values):
     path = os.path.join(os.path.dirname(__file__), "templates", template)
