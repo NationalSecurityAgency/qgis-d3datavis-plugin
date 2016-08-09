@@ -28,6 +28,7 @@ class AutoDict(dict):
         
 class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
     def __init__(self, iface, parent):
+        """ Constructor to initialize the circular heatmap dialog box """
         super(HeatmapDialog, self).__init__(parent)
         self.setupUi(self)
         self.iface = iface
@@ -41,35 +42,42 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
 
         
     def showEvent(self, event):
+        """When the heatmap dialog box is displayed, preinitialize it and populate
+           it with all the vector layers"""
         super(HeatmapDialog, self).showEvent(event)
         self.populateLayerListComboBox()
     
     def populateLayerListComboBox(self):
-        layerlist = []
-        self.foundLayers = [] # This is same size as layerlist
+        """This populates the layer list combobox with all the vector layers.
+           It then calls initLayerFields to populate the rest of the combo boxes."""
         layers = self.iface.legendInterface().layers()
+        
+        self.layerComboBox.clear()
         
         for layer in layers:
             if isinstance(layer, QgsVectorLayer):
-                layerlist.append(layer.name())
-                self.foundLayers.append(layer)
+                self.layerComboBox.addItem(layer.name(), layer)
 
-        self.layerComboBox.clear()
-        self.layerComboBox.addItems(layerlist)
         self.initLayerFields()
     
     def userSelectsLayer(self):
+        """The user has selected a layer so we need to initialize the layer field combo boxes"""
         self.initLayerFields()
         
     def initLayerFields(self):
+        """ Initialize the following combo boxes: dtComboBox, dateComboBox, and timeComboBox. """
         self.dtComboBox.clear()
         self.dateComboBox.clear()
         self.timeComboBox.clear()
         self.dtRadioButton.setChecked(True)
-        if len(self.foundLayers) == 0:
+        if self.layerComboBox.count() == 0:
             return
-        selectedLayer = self.layerComboBox.currentIndex()
-        for idx, field in enumerate(self.foundLayers[selectedLayer].pendingFields()):
+        # Get a reference for the layer from the combobox
+        selectedLayer = self.layerComboBox.itemData(self.layerComboBox.currentIndex())
+        
+        # Iterate over all the fields in the vector layer and populate the date/ime, date, and time combo boxes
+        # The selected fields much be one of the following data types: String, DateTime, Date, and Time
+        for idx, field in enumerate(selectedLayer.pendingFields()):
             ft = field.type()
             if ft == QVariant.String or ft == QVariant.DateTime:
                 self.dtComboBox.addItem(field.name(), idx)
@@ -83,6 +91,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         self.enableComponents()
     
     def enableComponents(self):
+        # Based on selections enable or disable certain radio buttons and combo boxes
         if self.dtRadioButton.isChecked():
             self.dtComboBox.setEnabled(True)
             self.dateComboBox.setEnabled(False)
@@ -93,7 +102,8 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
             self.timeComboBox.setEnabled(True)
         
     def readChartParams(self):
-        self.selectedLayer = self.foundLayers[self.layerComboBox.currentIndex()]
+        """ Read all the parameters from the GUI that we need to generate a chart. """
+        self.selectedLayer = self.layerComboBox.itemData(self.layerComboBox.currentIndex())
         self.selectedDateTimeCol = self.dtComboBox.itemData(self.dtComboBox.currentIndex())
         self.selectedDateCol = self.dateComboBox.itemData(self.dateComboBox.currentIndex())
         self.selectedTimeCol = self.timeComboBox.itemData(self.timeComboBox.currentIndex())
@@ -163,13 +173,15 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         raise ValueError('The only supported data types are QString, QDateTime, QDate, and QTime')
                 
     def accept(self):
-        if len(self.foundLayers) == 0:
+        """ This is called when the user has clicked on the "OK" button to create the chart."""
+        if self.layerComboBox.count() == 0:
             return
         self.readChartParams()
         folder = askForFolder(self)
         if not folder:
             return
         
+        # Set aside some space to accumulate the statistics
         data   = AutoDict()
         rvlist = AutoDict()
         cvlist = AutoDict()
@@ -180,6 +192,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         else:
             request.setSubsetOfAttributes([self.selectedDateCol, self.selectedTimeCol])
         
+        # Iterate through each feature and parse and process the date/time values
         iter = self.selectedLayer.getFeatures(request)
         for f in iter:
             try:
@@ -203,6 +216,8 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         if rvunits is None or cvunits is None:
             self.iface.messageBar().pushMessage("", "There is too large of a year range to create chart" , level=QgsMessageBar.WARNING, duration=3)
             return
+        
+        # Create the web page with all the JavaScript variables
         datastr = self.formatData(data, rvmin, rvmax, cvmin, cvmax)
         
         segCnt = rvmax-rvmin+1
@@ -256,6 +271,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         QMessageBox().information(self, "Date Time Heatmap", "Chart has been created")
     
     def formatData(self, data, rvmin, rvmax, cvmin, cvmax):
+        """This create the Javascript string of data"""
         datastrs=[]
         for x in range(cvmin, cvmax+1):
             for y in range(rvmin, rvmax+1):
@@ -268,6 +284,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         
     
     def getUnitStr(self, ulist, unit):
+        """ This creates the string of unit labels that will be used by the web page chart"""
         if unit == 0:
             minval = min(ulist)
             maxval = max(ulist)
@@ -293,8 +310,9 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
             maxval = 23
             str = '["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "Noon", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"]'
         return minval, maxval, str
-        
+
 def replaceInTemplate(template, values):
+    """ This merges the values into the template to create the output web page """
     path = os.path.join(os.path.dirname(__file__), "templates", template)
     with open(path) as f:
         lines = f.readlines()
@@ -302,6 +320,11 @@ def replaceInTemplate(template, values):
     for name,value in values.iteritems():
         s = s.replace(name, value)
     return s
+    
+"""
+The following keep track of and saves the last folder used by the get directory
+dialog box.
+"""
 
 LAST_PATH = "LastPath"
 
