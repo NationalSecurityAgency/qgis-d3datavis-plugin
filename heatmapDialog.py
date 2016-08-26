@@ -1,6 +1,7 @@
 import os
 import re
 import dateutil.parser
+import webbrowser
 from shutil import copyfile
 
 from PyQt4 import uic, QtCore, QtGui
@@ -268,7 +269,11 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
             os.path.join(folder,"d3.min.js"))
         copyfile(os.path.join(os.path.dirname(__file__), "d3", "circularHeatChart.js"), 
             os.path.join(folder,"circularHeatChart.js"))
+        # open the web browser
+        url = QUrl.fromLocalFile(filename).toString()
+        webbrowser.open(url, new=2) # new=2 is a new tab if possible
         QMessageBox().information(self, "Date Time Heatmap", "Chart has been created")
+        
     
     def formatData(self, data, rvmin, rvmax, cvmin, cvmax):
         """This create the Javascript string of data"""
