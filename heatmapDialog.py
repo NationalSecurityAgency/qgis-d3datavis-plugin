@@ -112,7 +112,9 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         self.selectedCircleUnit = self.circleComboBox.currentIndex()
         self.showRadialLabels = self.radialLabelCheckBox.isChecked()
         self.showBandLabels = self.bandLabelCheckBox.isChecked()
+        self.showLegend = self.legendCheckBox.isChecked()
         self.chartTitle = unicode(self.titleEdit.text())
+        self.legendTitle = unicode(self.legendEdit.text())
         self.showDataValues = self.showValuesCheckBox.isChecked()
         self.dataValueLabel = unicode(self.dataValueLabelEdit.text())
         try:
@@ -126,8 +128,25 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         except:
             self.chartBandHeight = 16
             self.bandHeightEdit.setText('16')
+        # Legend Settings
+        try: # Legend Height
+            self.legendHeight = int(self.legendHeightEdit.text())
+        except:
+            self.legendHeight = 300
+            self.legendHeightEdit.setText('300')
+        try: # Legend Width
+            self.legendWidth = int(self.legendWidthEdit.text())
+        except:
+            self.legendWidth = 30
+            self.legendWidthEdit.setText('30')
+        try: # Legend Box Width
+            self.legendBoxWidth = int(self.legendBoxWidthEdit.text())
+        except:
+            self.legendBoxWidth = 200
+            self.legendBoxWidthEdit.setText('200')
         self.beginningColor = self.startColor.color().name()
         self.endingColor = self.endColor.color().name()
+        self.noDataColor = self.noDataColorSelector.color().name()
 
     def parseDateTimeValues(self, requestedField, dt, time):
         '''This returns the requested date or time value from a datetime
@@ -224,7 +243,19 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         segCnt = rvmax-rvmin+1
         bandCnt = cvmax-cvmin+1
         chartSize = self.chartInnerRadius*2 + (bandCnt + 1)*2*self.chartBandHeight + 10 # 10 is additional margin
-        style = '#chart svg {{\n\theight: {}px;\n\twidth: {}px;\n}}'.format(chartSize, chartSize)
+        style = (".legendContainer {{\n"
+                 "	height: {};\n"
+                 "}}\n"
+                 ".legend svg {{\n"
+                 "	width: {}px;\n"
+                 "	height: {}px;\n"
+                 "}}\n"
+                 "#chart svg {{\n"
+                 "	height: {}px;\n"
+                 "	width: {}px;\n"
+                 "}}\n"
+                ).format(chartSize, self.legendBoxWidth, self.legendHeight, chartSize, chartSize)
+
         script = []
         script.append('var segHeight={};'.format(self.chartBandHeight))
         script.append('var segCnt={};'.format(segCnt))
@@ -235,19 +266,26 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         script.append('var edata=[{}];'.format(datastr))
         script.append('var startColor="{}";'.format(self.beginningColor))
         script.append('var endColor="{}";'.format(self.endingColor))
+        script.append('var noDataColor="{}";'.format(self.noDataColor))
         rl = ''
         if self.showRadialLabels:
             rl = '\n\t.segmentLabels(segLabels)'
         bl = ''
         if self.showBandLabels:
             bl = '\n\t.radialLabels(bandLabels)'
-        script.append('var chart = circularHeatChart()\n\t.range([startColor,endColor])\n\t.segmentHeight(segHeight)\n\t.innerRadius(innerRadius)\n\t.numSegments(segCnt){}{};'
-                .format(rl, bl))
+        ll = ''
+        if self.showLegend:
+            ll = '\n\t.legDivId("legend")\n\t.legendSettings({{width: {}, height: {}, legBlockWidth: {}}})\n\t.data(edata)\n'.format(self.legendBoxWidth, self.legendHeight, self.legendWidth)
+        script.append('var chart = circularHeatChart()\n\t.range([startColor,endColor])\n\t.nullColor(noDataColor)\n\t.segmentHeight(segHeight)\n\t.innerRadius(innerRadius)\n\t.numSegments(segCnt){}{}{};'
+                .format(rl, bl, ll))
         script.append('d3.select(\'#chart\')\n\t.selectAll(\'svg\')\n\t.data([edata])\n\t.enter()\n\t.append(\'svg\')\n\t.call(chart);')
         
         if self.showDataValues:
             script.append('d3.selectAll("#chart path").on(\'mouseover\', function() {\n\tvar d = d3.select(this).data();\n\td3.select("#info").text(\'' +
                 self.dataValueLabel + ' \' + d);\n});')
+                
+        if self.showLegend:
+            script.append('d3.select("#legendTitle").html("' + unicode(self.legendEdit.text()).replace('"', '\\"') + '");\n')
 
         values = {"@TITLE@": self.chartTitle,
                 "@STYLE@": style,
@@ -281,8 +319,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         for x in range(cvmin, cvmax+1):
             for y in range(rvmin, rvmax+1):
                 if not data[y][x]:
-                    datastrs.append('0')
-                    #datastrs.append('')
+                    datastrs.append('null')
                 else:
                     datastrs.append(str(data[y][x]))
         return ','.join(datastrs)
