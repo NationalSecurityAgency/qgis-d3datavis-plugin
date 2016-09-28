@@ -102,19 +102,18 @@ function circularHeatChart() {
 				g = legSvg.append("g");
 				var labels = [min, max];
 				g.selectAll("text").data(labels).enter().append("text")
-					.attr("x", legendSettings.legBlockWidth+5)
-					.attr("class", "label")
-					.attr("y", function(d, idx) {
-						if(idx == 0) {
-							return 10;
-						} else {
-							return legendSettings.height-1;
-						}
-					})
-					.attr("width", legendSettings.legBlockWidth)
-					.attr("height", legendSettings.legBlockHeight)
 					.text(function(d) {
 						return d;
+					})
+					.attr("class", "label")
+					.attr("x", legendSettings.legBlockWidth+5)
+					.attr("y", function(d, idx) {
+                        var bbox = this.getBBox();
+						if(idx == 0) {
+							return -bbox.y;
+						} else {
+                            return legendSettings.height - (bbox.height + bbox.y);
+						}
 					});
 			}
 		}
