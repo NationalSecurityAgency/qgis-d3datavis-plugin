@@ -36,13 +36,13 @@ These examples make use of the [2006 Chicago crime data](https://data.cityofchic
 
 ![Month vs day of the week](tutorial/month-dow.png)
 
-By looking at this graph one can make some observations. The least amount of crime occurs during the months of January, February and March. This is probably due to the cold. If that is the case way does December have a high crime rate. That is probably because of the holiday season. 
+By looking at this graph one can make some observations. The least amount of crime occurs during the months of January, February and March. This is probably due to the cold. If that is the case why does December have a high crime rate? That is probably because of the holiday season. 
 
 ### Hour of the day vs day of the week.
 
 ![Hour of the day vs day of the week](tutorial/hour-dow.png)
 
-In this graph it appears that crime increase from 6pm to 11pm. The worst crime occurs from midnight to 1am. More difficult jobs must be taking place on the weekend where there is an increase of activity from 1am to 3am. During the day from Noon to 1pm there is also an increase of crime.
+In this graph it appears that crime increases from 6pm to 11pm. The worst crime occurs from midnight to 1am. More difficult jobs must be taking place on the weekend where there is an increase of activity from 1am to 3am. During the day from Noon to 1pm there is also an increase of crime.
 
 ### Hour of the day vs month of the year
 
