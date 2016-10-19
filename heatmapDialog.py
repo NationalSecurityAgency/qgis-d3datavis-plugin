@@ -15,7 +15,7 @@ from qgis.gui import *
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'heatmapdialog.ui'))
 
-OPTIONMENU = ['Year', 'Month', 'Day of Month', 'Day of Week', 'Hour of Day']
+OPTIONMENU = ['Year', 'Month', 'Day of Month', 'Day of Week', 'Hour of Day', 'Custom Category Field']
 
 class AutoDict(dict):
     def __getitem__(self, item):
@@ -28,6 +28,7 @@ class AutoDict(dict):
         return item
         
 class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
+    CUSTOM_TYPES = [QVariant.String, QVariant.Int, QVariant.UInt, QVariant.LongLong, QVariant.ULongLong]
     def __init__(self, iface, parent):
         """ Constructor to initialize the circular heatmap dialog box """
         super(HeatmapDialog, self).__init__(parent)
@@ -67,6 +68,7 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         
     def initLayerFields(self):
         """ Initialize the following combo boxes: dtComboBox, dateComboBox, and timeComboBox. """
+        self.categoryComboBox.clear()
         self.dtComboBox.clear()
         self.dateComboBox.clear()
         self.timeComboBox.clear()
@@ -80,6 +82,8 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         # The selected fields much be one of the following data types: String, DateTime, Date, and Time
         for idx, field in enumerate(selectedLayer.pendingFields()):
             ft = field.type()
+            if ft in self.CUSTOM_TYPES:
+                self.categoryComboBox.addItem(field.name(), idx)
             if ft == QVariant.String or ft == QVariant.DateTime:
                 self.dtComboBox.addItem(field.name(), idx)
                 self.dateComboBox.addItem(field.name(), idx)
@@ -110,6 +114,10 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         self.selectedTimeCol = self.timeComboBox.itemData(self.timeComboBox.currentIndex())
         self.selectedRadialUnit = self.radialComboBox.currentIndex()
         self.selectedCircleUnit = self.circleComboBox.currentIndex()
+        self.customFieldCol = -1
+        if self.selectedRadialUnit == 5 or self.selectedCircleUnit == 5:
+            if self.categoryComboBox.count() > 0:
+                self.customFieldCol = self.categoryComboBox.itemData(self.categoryComboBox.currentIndex())
         self.showRadialLabels = self.radialLabelCheckBox.isChecked()
         self.showBandLabels = self.bandLabelCheckBox.isChecked()
         self.showLegend = self.legendCheckBox.isChecked()
@@ -191,12 +199,22 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
                 return d.weekday()
         
         raise ValueError('The only supported data types are QString, QDateTime, QDate, and QTime')
-                
+                    
     def accept(self):
         """ This is called when the user has clicked on the "OK" button to create the chart."""
         if self.layerComboBox.count() == 0:
             return
         self.readChartParams()
+        uniqueCustomFields = []
+        if self.selectedRadialUnit == 5 or self.selectedCircleUnit == 5:
+            if self.customFieldCol == -1:
+                self.iface.messageBar().pushMessage("", "Custom Category Filed cannot be selected because none is selected" , level=QgsMessageBar.WARNING, duration=3)
+                return
+            uniqueCustomFields = self.selectedLayer.uniqueValues(self.customFieldCol)
+            if len(uniqueCustomFields) > 40:
+                # We have too many categories
+                self.iface.messageBar().pushMessage("", "There are too many custom categories for a chart" , level=QgsMessageBar.WARNING, duration=3)
+                return;
         folder = askForFolder(self)
         if not folder:
             return
@@ -207,21 +225,46 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         cvlist = AutoDict()
         request = QgsFeatureRequest().setFlags(QgsFeatureRequest.NoGeometry)
         isdt = self.dtRadioButton.isChecked()
+        attributes = []
         if isdt:
-            request.setSubsetOfAttributes([self.selectedDateTimeCol])
+            attributes.append(self.selectedDateTimeCol)
         else:
-            request.setSubsetOfAttributes([self.selectedDateCol, self.selectedTimeCol])
+            attributes.extend([self.selectedDateCol, self.selectedTimeCol])
+        if self.customFieldCol != -1:
+            attributes.append(self.customFieldCol)
+        
+        request.setSubsetOfAttributes(attributes)
         
         # Iterate through each feature and parse and process the date/time values
         iter = self.selectedLayer.getFeatures(request)
         for f in iter:
             try:
                 if isdt:
-                    rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
-                    cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
+                    if self.selectedRadialUnit == 5:
+                        rv = f[self.customFieldCol]
+                        if rv == None:
+                            continue
+                    else:
+                        rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
+                    if self.selectedCircleUnit == 5:
+                        cv = f[self.customFieldCol]
+                        if cv == None:
+                            continue
+                    else:
+                        cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
                 else:
-                    rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
-                    cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
+                    if self.selectedRadialUnit == 5:
+                        rv = f[self.customFieldCol]
+                        if rv == None:
+                            continue
+                    else:
+                        rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
+                    if self.selectedCircleUnit == 5:
+                        cv = f[self.customFieldCol]
+                        if cv == None:
+                            continue
+                    else:
+                        cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
             except:
                 continue
             
@@ -231,17 +274,15 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         if not any(cvlist) or not any(rvlist):
             self.iface.messageBar().pushMessage("", "Valid dates were not found" , level=QgsMessageBar.WARNING, duration=3)
             return
-        rvmin, rvmax, rvunits = self.getUnitStr(rvlist, self.selectedRadialUnit)
-        cvmin, cvmax, cvunits = self.getUnitStr(cvlist, self.selectedCircleUnit)
+        rvrange, segCnt, rvunits = self.getUnitStr(rvlist, self.selectedRadialUnit)
+        cvrange, bandCnt, cvunits = self.getUnitStr(cvlist, self.selectedCircleUnit)
         if rvunits is None or cvunits is None:
             self.iface.messageBar().pushMessage("", "There is too large of a year range to create chart" , level=QgsMessageBar.WARNING, duration=3)
             return
         
         # Create the web page with all the JavaScript variables
-        datastr = self.formatData(data, rvmin, rvmax, cvmin, cvmax)
+        datastr = self.formatData(data, rvrange, cvrange)
         
-        segCnt = rvmax-rvmin+1
-        bandCnt = cvmax-cvmin+1
         chartSize = self.chartInnerRadius*2 + (bandCnt + 1)*2*self.chartBandHeight + 10 # 10 is additional margin
         style = (".legendContainer {{\n"
                  "	height: {};\n"
@@ -313,11 +354,11 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         QMessageBox().information(self, "Date Time Heatmap", "Chart has been created")
         
     
-    def formatData(self, data, rvmin, rvmax, cvmin, cvmax):
+    def formatData(self, data, rvrange, cvrange):
         """This create the Javascript string of data"""
         datastrs=[]
-        for x in range(cvmin, cvmax+1):
-            for y in range(rvmin, rvmax+1):
+        for x in cvrange:
+            for y in rvrange:
                 if not data[y][x]:
                     datastrs.append('null')
                 else:
@@ -332,26 +373,34 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
             maxval = max(ulist)
             if (maxval - minval) > 40:
                 return -1, -1, None
-            years = ['%d'%x for x in range(minval,maxval+1)]
-            str = '["'+'","'.join(years)+'"]'
+            cnt = maxval - minval + 1-12
+            urange = range(minval, maxval + 1)
+            years = ['%d'%x for x in urange]
+            labels = '["'+'","'.join(years)+'"]'
             
-        elif unit == 1:
-            minval = 1
-            maxval = 12
-            str =  '["January","February","March","April","May","June","July","August","September","October","November","December"]'
-        elif unit == 2:
-            minval = 1
-            maxval = 31
-            str = '["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]'
-        elif unit == 3:
-            minval = 0
-            maxval = 6
-            str = '["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]'
+        elif unit == 1: # Months 1-12
+            cnt = 12
+            urange = range(1,13)
+            labels =  '["January","February","March","April","May","June","July","August","September","October","November","December"]'
+        elif unit == 2: # Days of the month - possible 1 - 31
+            cnt = 31
+            urange = range(1,32)
+            labels = '["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]'
+        elif unit == 3: # Days of the week 0 - 6
+            cnt = 7
+            urange = range(0,7)
+            labels = '["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]'
+        elif unit == 4: # Hours of the day 0-23
+            cnt = 24
+            urange = range(0,24)
+            labels = '["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "Noon", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"]'
         else:
-            minval = 0
-            maxval = 23
-            str = '["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "Noon", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"]'
-        return minval, maxval, str
+            urange = sorted(ulist.keys())
+            labels = []
+            cnt = len(urange)
+            for item in urange:
+                labels.append(str(item))
+        return urange, cnt, labels
 
 def replaceInTemplate(template, values):
     """ This merges the values into the template to create the output web page """
