@@ -1,3 +1,6 @@
+This has been adapted from Peter Cook's circular heat map. His original copyright
+notice is as follows:
+
 Copyright (c) 2013, Peter Cook
 All rights reserved.
 
