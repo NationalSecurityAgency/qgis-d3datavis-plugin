@@ -2,7 +2,7 @@
 name=D3 Data Visualization
 qgisMinimumVersion=2.4
 description=D3 Date and Time Heatmap
-version=0.2
+version=0.3
 author=C Hamilton
 email=adenaculture@gmail.com
 about=This plugin creates a D3 circular histogram heatmap from date and time fields in the data. It outputs an interactive web page.
