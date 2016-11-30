@@ -93,7 +93,7 @@ In this example the input data has been filtered by setting a QGIS filter for on
         'BURGLARY','BATTERY','ASSAULT')
 
 
-For this example set the following to:
+Set the following to:
 
 * **Radial Lines** - *Hour of Day*
 * **Concentric Bands** - *Custom Category Field*
