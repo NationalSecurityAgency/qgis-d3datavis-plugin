@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>455</width>
-    <height>341</height>
+    <height>392</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -335,7 +335,7 @@
      </widget>
      <widget class="QWidget" name="colormap">
       <attribute name="title">
-       <string>Color Map</string>
+       <string>Colors</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -437,16 +437,16 @@
           <widget class="QgsColorButtonV2" name="noDataColorSelector">
            <property name="color">
             <color>
-             <red>250</red>
-             <green>250</green>
-             <blue>250</blue>
+             <red>240</red>
+             <green>240</green>
+             <blue>240</blue>
             </color>
            </property>
            <property name="defaultColor">
             <color>
-             <red>250</red>
-             <green>250</green>
-             <blue>250</blue>
+             <red>240</red>
+             <green>240</green>
+             <blue>240</blue>
             </color>
            </property>
           </widget>
@@ -489,7 +489,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>

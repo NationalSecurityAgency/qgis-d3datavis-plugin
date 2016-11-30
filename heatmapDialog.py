@@ -1,7 +1,6 @@
 import os
 import re
 import dateutil.parser
-import webbrowser
 from shutil import copyfile
 
 from PyQt4 import uic, QtCore, QtGui
@@ -41,6 +40,11 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         self.radialComboBox.addItems(OPTIONMENU)
         self.circleComboBox.addItems(OPTIONMENU)
         self.buttonBox.button(QDialogButtonBox.Ok).setText("Create Chart")
+        self.buttonBox.button(QDialogButtonBox.Help).clicked.connect(self.help)
+
+    def help(self):
+        from qgis import utils
+        utils.showPluginHelp()
 
         
     def showEvent(self, event):
@@ -235,36 +239,29 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         
         request.setSubsetOfAttributes(attributes)
         
+        if isdt:
+            col1 = self.selectedDateTimeCol
+            col2 = self.selectedDateTimeCol
+        else:
+            col1 = self.selectedDateCol
+            col2 = self.selectedTimeCol
+        
         # Iterate through each feature and parse and process the date/time values
         iter = self.selectedLayer.getFeatures(request)
         for f in iter:
             try:
-                if isdt:
-                    if self.selectedRadialUnit == 5:
-                        rv = f[self.customFieldCol]
-                        if rv == None:
-                            continue
-                    else:
-                        rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
-                    if self.selectedCircleUnit == 5:
-                        cv = f[self.customFieldCol]
-                        if cv == None:
-                            continue
-                    else:
-                        cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateTimeCol], f[self.selectedDateTimeCol])
+                if self.selectedRadialUnit == 5:
+                    rv = f[self.customFieldCol]
+                    if rv == None:
+                        continue
                 else:
-                    if self.selectedRadialUnit == 5:
-                        rv = f[self.customFieldCol]
-                        if rv == None:
-                            continue
-                    else:
-                        rv = self.parseDateTimeValues(self.selectedRadialUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
-                    if self.selectedCircleUnit == 5:
-                        cv = f[self.customFieldCol]
-                        if cv == None:
-                            continue
-                    else:
-                        cv = self.parseDateTimeValues(self.selectedCircleUnit, f[self.selectedDateCol], f[self.selectedTimeCol])
+                    rv = self.parseDateTimeValues(self.selectedRadialUnit, f[col1], f[col2])
+                if self.selectedCircleUnit == 5:
+                    cv = f[self.customFieldCol]
+                    if cv == None:
+                        continue
+                else:
+                    cv = self.parseDateTimeValues(self.selectedCircleUnit, f[col1], f[col2])
             except:
                 continue
             
