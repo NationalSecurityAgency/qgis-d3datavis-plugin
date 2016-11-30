@@ -16,6 +16,7 @@ experimental=False
 deprecated=False
 changelog=0.3
     - Added support for one axis to be categorized from a column in the data.
+    - Added a help button.
     0.2 
     - Added an optional legend graphic.
     - Now support "no data" values and a "no data" default color.
