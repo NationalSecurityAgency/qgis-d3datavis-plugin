@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/d3datavis" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>
