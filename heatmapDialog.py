@@ -1,9 +1,10 @@
 import os
 import re
 import dateutil.parser
+import webbrowser
 from shutil import copyfile
 
-from PyQt4 import uic, QtCore, QtGui
+from PyQt4 import uic
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -26,7 +27,7 @@ class AutoDict(dict):
     def __iadd__(self, item):
         return item
         
-class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
+class HeatmapDialog(QDialog, FORM_CLASS):
     CUSTOM_TYPES = [QVariant.String, QVariant.Int, QVariant.UInt, QVariant.LongLong, QVariant.ULongLong]
     def __init__(self, iface, parent):
         """ Constructor to initialize the circular heatmap dialog box """
@@ -43,9 +44,8 @@ class HeatmapDialog(QtGui.QDialog, FORM_CLASS):
         self.buttonBox.button(QDialogButtonBox.Help).clicked.connect(self.help)
 
     def help(self):
-        from qgis import utils
-        utils.showPluginHelp()
-
+        url = QUrl.fromLocalFile(os.path.dirname(__file__) + "/index.html").toString()
+        webbrowser.open(url, new=2)
         
     def showEvent(self, event):
         """When the heatmap dialog box is displayed, preinitialize it and populate
