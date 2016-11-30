@@ -23,6 +23,10 @@ deploy: compile
 	cp -vf $(TEMPLATES) $(HOME)/.qgis2/python/plugins/$(PLUGINNAME)/templates/
 	mkdir -p $(HOME)/.qgis2/python/plugins/$(PLUGINNAME)/d3/
 	cp -vf $(D3) $(HOME)/.qgis2/python/plugins/$(PLUGINNAME)/d3/
+	cp -vfr help $(HOME)/.qgis2/python/plugins/$(PLUGINNAME)
+	cp -vf helphead.html $(HOME)/.qgis2/python/plugins/$(PLUGINNAME)/index.html
+	python -m markdown -x markdown.extensions.headerid README.md >> $(HOME)/.qgis2/python/plugins/$(PLUGINNAME)/index.html
+	echo '</body>' >> $(HOME)/.qgis2/python/plugins/$(PLUGINNAME)/index.html
 
 
 clean:
