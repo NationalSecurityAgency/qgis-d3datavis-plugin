@@ -6,7 +6,7 @@ The plugin works by counting the number of date/time/category events using two a
 ## QGIS Layer Tab
 This tab is for choosing the vector layer that will be used for generating the heatmap chart. Additionally, date and time fields are selected. A field representing a category can be specified and the axis of the resulting chart is configured.
 
-![Circular Heatmap](help/d3datavis.jpg)
+<div style="text-align:center"><img src="help/d3datavis.jpg" alt="Circular Heatmap"></div>
 
 * **Input Vector Layer** - This is a list of all the vector layers in the QGIS project. Select the one that you want to work with.
 * **Date/Time Field** - By checking the radio button next to this filed you can specify a field that contains a date/time column. This can either be a QDateTime column or a string representing a date and time. Date/time strings are parsed using the Python **dateutil** [<code>dateutil.parser.parse</code>](http://dateutil.readthedocs.io/en/stable/parser.html) parser. The format of the string must match one of the supported formats used by <code>dateutil</code>.
@@ -26,7 +26,7 @@ Note that it is not necessary to have both date and time information. In this ca
 ## Titles Tab
 The chart title, legend title, and the mouse over prefix can be configured on this tab.
 
-![Titles Tab](help/titles.jpg)
+<div style="text-align:center"><img src="help/titles.jpg" alt="Titles Tab"></div>
 
 * **Chart Titles** - This text will be displayed as a header at the top of the page.
 * **Legend Title** - If a legend is displayed, this is the text that will be displayed above it.
@@ -37,7 +37,7 @@ The chart title, legend title, and the mouse over prefix can be configured on th
 ## Settings Tab
 Chart and legend settings for the heat map can be configured on this tab.
 
-![Settings Tab](help/settings.jpg)
+<div style="text-align:center"><img src="help/settings.jpg" alt="Settings Tab"></div>
 
 **Chart Settings**
 
@@ -57,7 +57,7 @@ The legend will be displayed to the right of the chart and these are its setting
 ## Colors Tab
 These are settings for fine control over the heatmap color ramp and **No Data Color**
 
-![Colars Tab](help/colormap.jpg)
+<div style="text-align:center"><img src="help/colormap.jpg" alt="Colors Tab"></div>
 
 # Suggestions
 Please send any suggestions to adenaculture@gmail.com or submit a ticket to the
@@ -68,19 +68,19 @@ These examples make use of the [2006 Chicago crime data](https://data.cityofchic
 
 ### Month of the year vs. day of the week.
 
-![Month vs. day of the week](help/month-dow.jpg)
+<div style="text-align:center"><img src="help/month-dow.jpg" alt="Month vs. day of the week"></div>
 
 By looking at this graph one can make some observations. The least amount of crime occurs during the months of January, February and March. This is probably due to the cold. If that is the case, why does December have a high crime rate? That is probably because of the holiday season. 
 
 ### Hour of the day vs. day of the week.
 
-![Hour of the day vs. day of the week](help/hour-dow.jpg)
+<div style="text-align:center"><img src="help/hour-dow.jpg" alt="Hour of the day vs. day of the week"></div>
 
 In this graph it appears that crime increases from 6pm to 11pm. The worst crime occurs from midnight to 1am. More difficult jobs must be taking place on the weekend where there is an increase of activity from 1am to 3am. During the day from Noon to 1pm there is also an increase of crime.
 
 ### Hour of the day vs. month of the year
 
-![Hour of the day vs month of the year](help/hour-month.jpg)
+<div style="text-align:center"><img src="help/hour-month.jpg" alt="Hour of the day vs month of the year"></div>
 
 Here one can see a similar pattern. Crime is less during January, February, and March. Crime increases starting from about 6pm to 11pm and then from Midnight to 1am plans are executed. This graph also shows the increased crime from Noon to 1pm.
 
@@ -101,4 +101,4 @@ Set the following to:
 
 This shows the resulting chart that is created.
 
-![Hour of the day vs custom crime category](help/category.jpg)
+<div style="text-align:center"><img src="help/category.jpg" alt="Hour of the day vs custom crime category"></div>
