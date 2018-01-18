@@ -5,11 +5,11 @@ import webbrowser
 from shutil import copyfile
 
 from PyQt4 import uic
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QSettings, QVariant, QUrl, QTime, QDateTime, QDate, QPyNullVariant
+from PyQt4.QtGui import QDialog, QDialogButtonBox, QMessageBox, QFileDialog
 
-from qgis.core import *
-from qgis.gui import *
+from qgis.core import QgsVectorLayer, QgsFeatureRequest
+from qgis.gui import QgsMessageBar
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(

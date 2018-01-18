@@ -1,10 +1,7 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
+from PyQt4.QtGui import QIcon, QAction
 
 import os.path
-from heatmapDialog import HeatmapDialog
+from .heatmapDialog import HeatmapDialog
 
 
 
