@@ -4,12 +4,12 @@ import dateutil.parser
 import webbrowser
 from shutil import copyfile
 
-from PyQt4 import uic
-from PyQt4.QtCore import QSettings, QVariant, QUrl, QTime, QDateTime, QDate, QPyNullVariant
-from PyQt4.QtGui import QDialog, QDialogButtonBox, QMessageBox, QFileDialog
+from qgis.PyQt import uic
+from qgis.PyQt.QtCore import QSettings, QVariant, QUrl, QTime, QDateTime, QDate
+from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QMessageBox, QDialogButtonBox
 
-from qgis.core import QgsVectorLayer, QgsFeatureRequest
-from qgis.gui import QgsMessageBar
+from qgis.core import QgsMapLayerProxyModel, QgsFieldProxyModel, QgsVectorLayer, QgsFeatureRequest
+from qgis.gui import QgsMessageBar, QgsColorButton
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -35,7 +35,12 @@ class HeatmapDialog(QDialog, FORM_CLASS):
         self.setupUi(self)
         self.iface = iface
         self.canvas = iface.mapCanvas()
-        self.layerComboBox.activated.connect(self.userSelectsLayer)
+        self.layerComboBox.setFilters(QgsMapLayerProxyModel.VectorLayer)
+        self.layerComboBox.layerChanged.connect(self.userSelectsLayer)
+        self.dtComboBox.setFilters(QgsFieldProxyModel.String | QgsFieldProxyModel.Date | QgsFieldProxyModel.Time)
+        self.dateComboBox.setFilters(QgsFieldProxyModel.String | QgsFieldProxyModel.Date)
+        self.timeComboBox.setFilters(QgsFieldProxyModel.String | QgsFieldProxyModel.Time)
+        self.categoryComboBox.setFilters(QgsFieldProxyModel.String | QgsFieldProxyModel.Numeric)
         self.dtRadioButton.clicked.connect(self.enableComponents)
         self.notdtRadioButton.clicked.connect(self.enableComponents)
         self.radialComboBox.addItems(OPTIONMENU)
@@ -51,19 +56,6 @@ class HeatmapDialog(QDialog, FORM_CLASS):
         """When the heatmap dialog box is displayed, preinitialize it and populate
            it with all the vector layers"""
         super(HeatmapDialog, self).showEvent(event)
-        self.populateLayerListComboBox()
-    
-    def populateLayerListComboBox(self):
-        """This populates the layer list combobox with all the vector layers.
-           It then calls initLayerFields to populate the rest of the combo boxes."""
-        layers = self.iface.legendInterface().layers()
-        
-        self.layerComboBox.clear()
-        
-        for layer in layers:
-            if isinstance(layer, QgsVectorLayer):
-                self.layerComboBox.addItem(layer.name(), layer)
-
         self.initLayerFields()
     
     def userSelectsLayer(self):
@@ -72,31 +64,12 @@ class HeatmapDialog(QDialog, FORM_CLASS):
         
     def initLayerFields(self):
         """ Initialize the following combo boxes: dtComboBox, dateComboBox, and timeComboBox. """
-        self.categoryComboBox.clear()
-        self.dtComboBox.clear()
-        self.dateComboBox.clear()
-        self.timeComboBox.clear()
+        layer = self.layerComboBox.currentLayer()
+        self.categoryComboBox.setLayer(layer)
+        self.dtComboBox.setLayer(layer)
+        self.dateComboBox.setLayer(layer)
+        self.timeComboBox.setLayer(layer)
         self.dtRadioButton.setChecked(True)
-        if self.layerComboBox.count() == 0:
-            return
-        # Get a reference for the layer from the combobox
-        selectedLayer = self.layerComboBox.itemData(self.layerComboBox.currentIndex())
-        
-        # Iterate over all the fields in the vector layer and populate the date/ime, date, and time combo boxes
-        # The selected fields much be one of the following data types: String, DateTime, Date, and Time
-        for idx, field in enumerate(selectedLayer.pendingFields()):
-            ft = field.type()
-            if ft in self.CUSTOM_TYPES:
-                self.categoryComboBox.addItem(field.name(), idx)
-            if ft == QVariant.String or ft == QVariant.DateTime:
-                self.dtComboBox.addItem(field.name(), idx)
-                self.dateComboBox.addItem(field.name(), idx)
-                self.timeComboBox.addItem(field.name(), idx)
-            elif ft == QVariant.Date:
-                self.dtComboBox.addItem(field.name(), idx)
-                self.dateComboBox.addItem(field.name(), idx)
-            elif ft == QVariant.Time:
-                self.timeComboBox.addItem(field.name(), idx)                
         self.enableComponents()
     
     def enableComponents(self):
@@ -112,23 +85,23 @@ class HeatmapDialog(QDialog, FORM_CLASS):
         
     def readChartParams(self):
         """ Read all the parameters from the GUI that we need to generate a chart. """
-        self.selectedLayer = self.layerComboBox.itemData(self.layerComboBox.currentIndex())
-        self.selectedDateTimeCol = self.dtComboBox.itemData(self.dtComboBox.currentIndex())
-        self.selectedDateCol = self.dateComboBox.itemData(self.dateComboBox.currentIndex())
-        self.selectedTimeCol = self.timeComboBox.itemData(self.timeComboBox.currentIndex())
+        self.selectedLayer = self.layerComboBox.currentLayer()
+        self.selectedDateTimeCol = self.selectedLayer.fields().lookupField(self.dtComboBox.currentField())
+        self.selectedDateCol = self.selectedLayer.fields().lookupField(self.dateComboBox.currentField())
+        self.selectedTimeCol = self.selectedLayer.fields().lookupField(self.timeComboBox.currentField())
         self.selectedRadialUnit = self.radialComboBox.currentIndex()
         self.selectedCircleUnit = self.circleComboBox.currentIndex()
         self.customFieldCol = -1
         if self.selectedRadialUnit == 5 or self.selectedCircleUnit == 5:
             if self.categoryComboBox.count() > 0:
-                self.customFieldCol = self.categoryComboBox.itemData(self.categoryComboBox.currentIndex())
+                self.customFieldCol = self.selectedLayer.fields().lookupField(self.categoryComboBox.currentField())
         self.showRadialLabels = self.radialLabelCheckBox.isChecked()
         self.showBandLabels = self.bandLabelCheckBox.isChecked()
         self.showLegend = self.legendCheckBox.isChecked()
-        self.chartTitle = unicode(self.titleEdit.text())
-        self.legendTitle = unicode(self.legendEdit.text())
+        self.chartTitle = str(self.titleEdit.text())
+        self.legendTitle = str(self.legendEdit.text())
         self.showDataValues = self.showValuesCheckBox.isChecked()
-        self.dataValueLabel = unicode(self.dataValueLabelEdit.text())
+        self.dataValueLabel = str(self.dataValueLabelEdit.text())
         try:
             self.chartInnerRadius = int(self.innerRadiusEdit.text())
         except:
@@ -323,7 +296,7 @@ class HeatmapDialog(QDialog, FORM_CLASS):
                 self.dataValueLabel + ' \' + d);\n});')
                 
         if self.showLegend:
-            script.append('d3.select("#legendTitle").html("' + unicode(self.legendEdit.text()).replace('"', '\\"') + '");\n')
+            script.append('d3.select("#legendTitle").html("' + str(self.legendEdit.text()).replace('"', '\\"') + '");\n')
 
         values = {"@TITLE@": self.chartTitle,
                 "@STYLE@": style,
@@ -371,25 +344,25 @@ class HeatmapDialog(QDialog, FORM_CLASS):
             if (maxval - minval) > 40:
                 return -1, -1, None
             cnt = maxval - minval + 1-12
-            urange = range(minval, maxval + 1)
+            urange = list(range(minval, maxval + 1))
             years = ['%d'%x for x in urange]
             labels = '["'+'","'.join(years)+'"]'
             
         elif unit == 1: # Months 1-12
             cnt = 12
-            urange = range(1,13)
+            urange = list(range(1,13))
             labels =  '["January","February","March","April","May","June","July","August","September","October","November","December"]'
         elif unit == 2: # Days of the month - possible 1 - 31
             cnt = 31
-            urange = range(1,32)
+            urange = list(range(1,32))
             labels = '["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]'
         elif unit == 3: # Days of the week 0 - 6
             cnt = 7
-            urange = range(0,7)
+            urange = list(range(0,7))
             labels = '["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]'
         elif unit == 4: # Hours of the day 0-23
             cnt = 24
-            urange = range(0,24)
+            urange = list(range(0,24))
             labels = '["Midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "Noon", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"]'
         else:
             urange = sorted(ulist.keys())
@@ -405,7 +378,7 @@ def replaceInTemplate(template, values):
     with open(path) as f:
         lines = f.readlines()
     s = "".join(lines)
-    for name,value in values.iteritems():
+    for name,value in values.items():
         s = s.replace(name, value)
     return s
     
@@ -430,6 +403,4 @@ def setSetting(namespace, name, value):
 
 def getSetting(namespace, name):
     v = QSettings().value(namespace + "/" + name, None)
-    if isinstance(v, QPyNullVariant):
-        v = None
     return v

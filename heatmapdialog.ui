@@ -36,18 +36,12 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="layerComboBox"/>
-         </item>
          <item row="1" column="0">
           <widget class="QRadioButton" name="dtRadioButton">
            <property name="text">
             <string>Date/Time Field</string>
            </property>
           </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="dtComboBox"/>
          </item>
          <item row="2" column="1">
           <widget class="QLabel" name="label_2">
@@ -66,18 +60,12 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QComboBox" name="dateComboBox"/>
-         </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>      Time Field</string>
            </property>
           </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QComboBox" name="timeComboBox"/>
          </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_4">
@@ -106,8 +94,20 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="1">
+          <widget class="QgsMapLayerComboBox" name="layerComboBox"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QgsFieldComboBox" name="dtComboBox"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QgsFieldComboBox" name="dateComboBox"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QgsFieldComboBox" name="timeComboBox"/>
+         </item>
          <item row="7" column="1">
-          <widget class="QComboBox" name="categoryComboBox"/>
+          <widget class="QgsFieldComboBox" name="categoryComboBox"/>
          </item>
         </layout>
        </item>
@@ -355,21 +355,8 @@
           </widget>
          </item>
          <item>
-          <widget class="QgsColorButtonV2" name="startColor">
-           <property name="minimumSize">
-            <size>
-             <width>24</width>
-             <height>24</height>
-            </size>
-           </property>
+          <widget class="QgsColorButton" name="startColor">
            <property name="color">
-            <color>
-             <red>255</red>
-             <green>255</green>
-             <blue>255</blue>
-            </color>
-           </property>
-           <property name="defaultColor">
             <color>
              <red>255</red>
              <green>255</green>
@@ -386,21 +373,8 @@
           </widget>
          </item>
          <item>
-          <widget class="QgsColorButtonV2" name="endColor">
-           <property name="minimumSize">
-            <size>
-             <width>24</width>
-             <height>24</height>
-            </size>
-           </property>
+          <widget class="QgsColorButton" name="endColor">
            <property name="color">
-            <color>
-             <red>255</red>
-             <green>0</green>
-             <blue>0</blue>
-            </color>
-           </property>
-           <property name="defaultColor">
             <color>
              <red>255</red>
              <green>0</green>
@@ -434,15 +408,8 @@
           </widget>
          </item>
          <item>
-          <widget class="QgsColorButtonV2" name="noDataColorSelector">
+          <widget class="QgsColorButton" name="noDataColorSelector">
            <property name="color">
-            <color>
-             <red>240</red>
-             <green>240</green>
-             <blue>240</blue>
-            </color>
-           </property>
-           <property name="defaultColor">
             <color>
              <red>240</red>
              <green>240</green>
@@ -497,8 +464,18 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QgsColorButtonV2</class>
-   <extends>QToolButton</extends>
+   <class>QgsColorButton</class>
+   <extends>QPushButton</extends>
+   <header>qgis.gui</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsFieldComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgis.gui</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
    <header>qgis.gui</header>
   </customwidget>
  </customwidgets>
