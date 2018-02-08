@@ -1,5 +1,5 @@
 PLUGINNAME = d3datavis
-PLUGINS = $(HOME)/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/$(PLUGINNAME)
+PLUGINS = "$(HOME)"/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/$(PLUGINNAME)
 PY_FILES = d3datavis.py __init__.py heatmapDialog.py
 EXTRAS = icon.png metadata.txt
 UI_FILES = heatmapdialog.ui

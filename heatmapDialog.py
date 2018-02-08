@@ -8,8 +8,8 @@ from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QSettings, QVariant, QUrl, QTime, QDateTime, QDate
 from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QMessageBox, QDialogButtonBox
 
-from qgis.core import QgsMapLayerProxyModel, QgsFieldProxyModel, QgsVectorLayer, QgsFeatureRequest
-from qgis.gui import QgsMessageBar, QgsColorButton
+from qgis.core import Qgis, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsVectorLayer, QgsFeatureRequest
+from qgis.gui import QgsColorButton
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -185,12 +185,12 @@ class HeatmapDialog(QDialog, FORM_CLASS):
         uniqueCustomFields = []
         if self.selectedRadialUnit == 5 or self.selectedCircleUnit == 5:
             if self.customFieldCol == -1:
-                self.iface.messageBar().pushMessage("", "Custom Category Filed cannot be selected because none is selected" , level=QgsMessageBar.WARNING, duration=3)
+                self.iface.messageBar().pushMessage("", "Custom Category Filed cannot be selected because none is selected" , level=Qgis.Warning, duration=3)
                 return
             uniqueCustomFields = self.selectedLayer.uniqueValues(self.customFieldCol)
             if len(uniqueCustomFields) > 40:
                 # We have too many categories
-                self.iface.messageBar().pushMessage("", "There are too many custom categories for a chart" , level=QgsMessageBar.WARNING, duration=3)
+                self.iface.messageBar().pushMessage("", "There are too many custom categories for a chart" , level=Qgis.Warning, duration=3)
                 return;
         folder = askForFolder(self)
         if not folder:
@@ -242,12 +242,12 @@ class HeatmapDialog(QDialog, FORM_CLASS):
             cvlist[cv] += 1
             data[rv][cv] += 1
         if not any(cvlist) or not any(rvlist):
-            self.iface.messageBar().pushMessage("", "Valid dates were not found" , level=QgsMessageBar.WARNING, duration=3)
+            self.iface.messageBar().pushMessage("", "Valid dates were not found" , level=Qgis.Warning, duration=3)
             return
         rvrange, segCnt, rvunits = self.getUnitStr(rvlist, self.selectedRadialUnit)
         cvrange, bandCnt, cvunits = self.getUnitStr(cvlist, self.selectedCircleUnit)
         if rvunits is None or cvunits is None:
-            self.iface.messageBar().pushMessage("", "There is too large of a year range to create chart" , level=QgsMessageBar.WARNING, duration=3)
+            self.iface.messageBar().pushMessage("", "There is too large of a year range to create chart" , level=Qgis.Warning, duration=3)
             return
         
         # Create the web page with all the JavaScript variables
@@ -309,7 +309,7 @@ class HeatmapDialog(QDialog, FORM_CLASS):
         try:
             fout = open(filename, 'w')
         except:
-            self.iface.messageBar().pushMessage("", "Error opening output file" , level=QgsMessageBar.CRITICAL, duration=3)
+            self.iface.messageBar().pushMessage("", "Error opening output file" , level=Qgis.Critical, duration=3)
             return
         fout.write(html)
         fout.close()
