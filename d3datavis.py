@@ -3,8 +3,6 @@ from qgis.PyQt.QtWidgets import QAction
 
 import os.path
 
-
-
 class D3DataVis:
     heatmapDialog = None
     def __init__(self, iface):
