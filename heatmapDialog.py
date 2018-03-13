@@ -11,7 +11,6 @@ from PyQt4.QtGui import QDialog, QDialogButtonBox, QMessageBox, QFileDialog
 from qgis.core import QgsVectorLayer, QgsFeatureRequest
 from qgis.gui import QgsMessageBar
 
-
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'heatmapdialog.ui'))
 
