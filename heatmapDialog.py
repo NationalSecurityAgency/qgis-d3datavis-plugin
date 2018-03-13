@@ -11,7 +11,6 @@ from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QMessageBox, QDialogButton
 from qgis.core import Qgis, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsVectorLayer, QgsFeatureRequest
 from qgis.gui import QgsColorButton
 
-
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'heatmapdialog.ui'))
 
