@@ -219,7 +219,10 @@ class HeatmapDialog(QDialog, FORM_CLASS):
             col2 = self.selectedTimeCol
         
         # Iterate through each feature and parse and process the date/time values
-        iter = self.selectedLayer.getFeatures(request)
+        if self.selectedOnlyCheckBox.isChecked():
+            iter = self.selectedLayer.getSelectedFeatures(request)
+        else:
+            iter = self.selectedLayer.getFeatures(request)
         for f in iter:
             try:
                 if self.selectedRadialUnit == 5:

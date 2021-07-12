@@ -36,14 +36,14 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QRadioButton" name="dtRadioButton">
            <property name="text">
             <string>Date/Time Field</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="4" column="1">
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>--- or separate Date and Time Fields ---</string>
@@ -53,41 +53,41 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="5" column="0">
           <widget class="QRadioButton" name="notdtRadioButton">
            <property name="text">
             <string>Date Field</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>      Time Field</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
             <string>Radial Lines</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="7" column="1">
           <widget class="QComboBox" name="radialComboBox"/>
          </item>
-         <item row="6" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Concentric Bands</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="8" column="1">
           <widget class="QComboBox" name="circleComboBox"/>
          </item>
-         <item row="7" column="0">
+         <item row="9" column="0">
           <widget class="QLabel" name="label_18">
            <property name="text">
             <string>Custom Category</string>
@@ -97,17 +97,24 @@
          <item row="0" column="1">
           <widget class="QgsMapLayerComboBox" name="layerComboBox"/>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QgsFieldComboBox" name="dtComboBox"/>
          </item>
-         <item row="3" column="1">
+         <item row="5" column="1">
           <widget class="QgsFieldComboBox" name="dateComboBox"/>
          </item>
-         <item row="4" column="1">
+         <item row="6" column="1">
           <widget class="QgsFieldComboBox" name="timeComboBox"/>
          </item>
-         <item row="7" column="1">
+         <item row="9" column="1">
           <widget class="QgsFieldComboBox" name="categoryComboBox"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="selectedOnlyCheckBox">
+           <property name="text">
+            <string>Selected features only</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -465,18 +472,18 @@
  <customwidgets>
   <customwidget>
    <class>QgsColorButton</class>
-   <extends>QPushButton</extends>
-   <header>qgis.gui</header>
+   <extends>QToolButton</extends>
+   <header>qgscolorbutton.h</header>
   </customwidget>
   <customwidget>
    <class>QgsFieldComboBox</class>
    <extends>QComboBox</extends>
-   <header>qgis.gui</header>
+   <header>qgsfieldcombobox.h</header>
   </customwidget>
   <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
-   <header>qgis.gui</header>
+   <header>qgsmaplayercombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

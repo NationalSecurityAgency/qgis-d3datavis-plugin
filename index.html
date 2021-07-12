@@ -1,0 +1,126 @@
+<head>
+<style>
+body {
+    font:13.34px helvetica,arial,freesans,clean,sans-serif;
+    color:black;
+    line-height:1.4em;
+    background-color: #F8F8F8;
+    padding: 0.7em;
+}
+pre {
+    margin:1em 0;
+    font-size:12px;
+    background-color:#eee;
+    border:1px solid #ddd;
+    padding:5px;
+    line-height:1.5em;
+    color:#444;
+    overflow:auto;
+    -webkit-box-shadow:rgba(0,0,0,0.07) 0 1px 2px inset;
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;border-radius:3px;
+}
+pre code {
+    padding:0;
+    font-size:12px;
+    background-color:#eee;
+    border:none;
+}
+code {
+    font-size:12px;
+    background-color:#f8f8ff;
+    color:#444;
+    padding:0 .2em;
+    border:1px solid #dedede;
+}
+</style>
+</head>
+<body>
+<h1>QGIS D3 Date and Time Heatmap</h1>
+<p>This plugin creates a D3 circular histogram heatmap using date, time, and custom categories in the data. An optional legend can be included. </p>
+<p>The plugin works by counting the number of date/time/category events using two axis and displays the results as a circular heatmap. It allows you to analyze the temporal distribution of data and how much of it exists across time, based on two frequencies.</p>
+<h2>QGIS Layer Tab</h2>
+<p>This tab is for choosing the vector layer that will be used for generating the heatmap chart. Additionally, date and time fields are selected. A field representing a category can be specified and the axis of the resulting chart is configured.</p>
+<div style="text-align:center"><img src="help/d3datavis.jpg" alt="Circular Heatmap"></div>
+
+<ul>
+<li><strong>Input Vector Layer</strong> - This is a list of all the vector layers in the QGIS project. Select the one that you want to work with.</li>
+<li><strong>Date/Time Field</strong> - By checking the radio button next to this filed you can specify a field that contains a date/time column. This can either be a QDateTime column or a string representing a date and time. Date/time strings are parsed using the Python <strong>dateutil</strong> <a href="http://dateutil.readthedocs.io/en/stable/parser.html"><code>dateutil.parser.parse</code></a> parser. The format of the string must match one of the supported formats used by <code>dateutil</code>.</li>
+<li><strong>Date Field</strong> - If the vector layer has separate columns for Date and Time then select this radio button and then select a field that contains a date.</li>
+<li><strong>Time Field</strong> - This is enabled by checking the radio button next to the <strong>Date Field</strong>. Here you can choose a field that contains time.</li>
+<li><strong>Radial Lines</strong> and <strong>Concentric Bands</strong> represent one of the following for their respective axis:<ul>
+<li>Year</li>
+<li>Month</li>
+<li>Day of Month</li>
+<li>Day of Week</li>
+<li>Hour of Day</li>
+<li>Custom Category Field - Select this if you want to use one of the columns as a category along one of the axis. </li>
+</ul>
+</li>
+<li><strong>Custom Category</strong> specifies one of the columns that represents a category that can be selected for the axis. Both <strong>Radial Lines</strong> and <strong>Concentric Bands</strong> can select this field. If there are too many unique values in the category column, then an error message will be generated. You can limit the number unique category values by setting a <em>Filter</em> on the layer. See the example below.</li>
+</ul>
+<p>Note that it is not necessary to have both date and time information. In this case, select either the radial box representing date and time in the same column or separate date and time columns.</p>
+<h2>Titles Tab</h2>
+<p>The chart title, legend title, and the mouse over prefix can be configured on this tab.</p>
+<div style="text-align:center"><img src="help/titles.jpg" alt="Titles Tab"></div>
+
+<ul>
+<li><strong>Chart Titles</strong> - This text will be displayed as a header at the top of the page.</li>
+<li><strong>Legend Title</strong> - If a legend is displayed, this is the text that will be displayed above it.</li>
+<li><strong>Mouse Over Prefix</strong> - When <strong><em>Show mouse over histogram value</em></strong> is selected, whenever the mouse is over a part of the chart, the value of the pie segment will be displayed. This is the prefix that accompanies the pie segment value.</li>
+<li><strong>Show Legend</strong> - Check this box to display the legend.</li>
+<li><strong>Show mouse over histogram value</strong> - Check this to display the histogram value when the mouse is over a wedge of the heat map chart.</li>
+</ul>
+<h2>Settings Tab</h2>
+<p>Chart and legend settings for the heat map can be configured on this tab.</p>
+<div style="text-align:center"><img src="help/settings.jpg" alt="Settings Tab"></div>
+
+<p><strong>Chart Settings</strong></p>
+<ul>
+<li><strong>Inner radius</strong> - The radius in pixels where the first band of the heatmap starts.</li>
+<li><strong>Band height</strong> - Height in pixels of each band.</li>
+<li><strong>Show radial labels</strong> - When checked, the radial labels will be displayed.</li>
+<li><strong>Show band labels</strong> - When checked, the labels for each band will be displayed.</li>
+</ul>
+<p><strong>Legend Settings</strong></p>
+<p>The legend will be displayed to the right of the chart and these are its settings.</p>
+<ul>
+<li><strong>Maximum Legend Height</strong> - Specifies the maximum height of the legend in pixels.</li>
+<li><strong>Legend Width</strong> - Specifies the width of the legend bar in pixels.</li>
+<li><strong>Legend Box Width</strong> - Specifies the overall D3 legend container width. This must be large enough to include the legend bar and labels.</li>
+</ul>
+<h2>Colors Tab</h2>
+<p>These are settings for fine control over the heatmap color ramp and <strong>No Data Color</strong></p>
+<div style="text-align:center"><img src="help/colormap.jpg" alt="Colors Tab"></div>
+
+<h1>Suggestions</h1>
+<p>Please send any suggestions to adenaculture@gmail.com or submit a ticket to the
+<a href="https://github.com/NationalSecurityAgency/qgis-d3datavis-plugin/issues">D3DataVis Issue tracker</a></p>
+<h1>Tutorial Examples</h1>
+<p>These examples make use of the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2">2006 Chicago crime data</a>. In 2006 there were 367,968 crime incidents. That is a lot of crime during a year in just one city. Although this author is not trained in crime, some basic conclusions can be obtained by looking at the crime incidents based on the Month of the Year, Time of the Day, and Day of the Week. Here are the examples.</p>
+<h3>Month of the year vs. day of the week.</h3>
+<div style="text-align:center"><img src="help/month-dow.jpg" alt="Month vs. day of the week"></div>
+
+<p>By looking at this graph one can make some observations. The least amount of crime occurs during the months of January, February and March. This is probably due to the cold. If that is the case, why does December have a high crime rate? That is probably because of the holiday season. </p>
+<h3>Hour of the day vs. day of the week.</h3>
+<div style="text-align:center"><img src="help/hour-dow.jpg" alt="Hour of the day vs. day of the week"></div>
+
+<p>In this graph it appears that crime increases from 6pm to 11pm. The worst crime occurs from midnight to 1am. More difficult jobs must be taking place on the weekend where there is an increase of activity from 1am to 3am. During the day from Noon to 1pm there is also an increase of crime.</p>
+<h3>Hour of the day vs. month of the year</h3>
+<div style="text-align:center"><img src="help/hour-month.jpg" alt="Hour of the day vs month of the year"></div>
+
+<p>Here one can see a similar pattern. Crime is less during January, February, and March. Crime increases starting from about 6pm to 11pm and then from Midnight to 1am plans are executed. This graph also shows the increased crime from Noon to 1pm.</p>
+<h3>Hour of the day vs custom crime category</h3>
+<p>In this example the input data has been filtered by setting a QGIS filter for only certain types of crime. For this Example, right-mouse click on the Chicago crime layer in QGIS and select <strong>Filter</strong> then use the following filter:</p>
+<pre><code>"Primary Ty" IN ('THEFT','ROBBERY','OTHER OFFENSE','NARCOTICS',
+    'MOTOR VEHICLE THEFT','DECEPTIVE PRACTICE','CRIMINAL TRESPASS',
+    'BURGLARY','BATTERY','ASSAULT')
+</code></pre>
+<p>Set the following to:</p>
+<ul>
+<li><strong>Radial Lines</strong> - <em>Hour of Day</em></li>
+<li><strong>Concentric Bands</strong> - <em>Custom Category Field</em></li>
+<li><strong>Custom Category</strong> - <em>Primary Ty</em></li>
+</ul>
+<p>This shows the resulting chart that is created.</p>
+<div style="text-align:center"><img src="help/category.jpg" alt="Hour of the day vs custom crime category"></div></body>

@@ -16,7 +16,7 @@ deploy:
 	mkdir -p $(PLUGINS)/d3/
 	cp -vf $(D3) $(PLUGINS)/d3/
 	cp -vfr help $(PLUGINS)
-	cp -vf helphead.html $(PLUGINS)/index.html
-	python -m markdown -x markdown.extensions.headerid README.md >> $(PLUGINS)/index.html
-	echo '</body>' >> $(PLUGINS)/index.html
-
+	cp -vf helphead.html index.html
+	python -m markdown -x extra readme.md >> index.html
+	echo '</body>' >> index.html
+	cp -vf index.html $(PLUGINS)/index.html
