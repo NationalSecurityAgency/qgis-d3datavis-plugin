@@ -1,10 +1,19 @@
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
+try:
+    from wordcloud import WordCloud
+    import matplotlib.pyplot as plt
+    has_wordcloud = True
+except Exception:
+    has_wordcloud = False
+
+
 import os.path
 
 class D3DataVis:
     heatmapDialog = None
+    wordcloudDialog = None
     def __init__(self, iface):
         self.iface = iface
 
@@ -13,14 +22,19 @@ class D3DataVis:
         icon = QIcon(os.path.dirname(__file__) + "/icon.png")
         self.heatmapAction = QAction(icon, "Circular Date/Time Heatmap", self.iface.mainWindow())
         self.heatmapAction.triggered.connect(self.showHeatmapDialog)
-        self.heatmapAction.setCheckable(False)
-        self.iface.addWebToolBarIcon(self.heatmapAction)
-        # Add a D3 Data Visualization menu item to the Web menu
         self.iface.addPluginToWebMenu("D3 Data Visualization", self.heatmapAction)
+        self.iface.addWebToolBarIcon(self.heatmapAction)
+        
+        if has_wordcloud:
+            self.wordCloudAction = QAction("Generate Word Cloud", self.iface.mainWindow())
+            self.wordCloudAction.triggered.connect(self.showWordCloudDialog)
+            self.iface.addPluginToWebMenu("D3 Data Visualization", self.wordCloudAction)
 
     def unload(self):
         self.iface.removePluginWebMenu("D3 Data Visualization", self.heatmapAction)
         self.iface.removeWebToolBarIcon(self.heatmapAction)
+        if has_wordcloud:
+            self.iface.removePluginWebMenu("D3 Data Visualization", self.wordCloudAction)
     
     def showHeatmapDialog(self):
         """Display the circular date/time heatmap dialog box"""
@@ -28,5 +42,11 @@ class D3DataVis:
             from .heatmapDialog import HeatmapDialog
             self.heatmapDialog = HeatmapDialog(self.iface, self.iface.mainWindow())
         self.heatmapDialog.show()
+    
+    def showWordCloudDialog(self):
+        if not self.wordcloudDialog:
+            from .genwordcloud import WordCloudDialog
+            self.wordcloudDialog = WordCloudDialog(self.iface, self.iface.mainWindow())
+        self.wordcloudDialog.show()
         
         
