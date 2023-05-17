@@ -26,15 +26,18 @@ class D3DataVis:
         self.iface.addWebToolBarIcon(self.heatmapAction)
         
         if has_wordcloud:
-            self.wordCloudAction = QAction("Generate Word Cloud", self.iface.mainWindow())
+            icon = QIcon(os.path.dirname(__file__) + "/wordcloud.png")
+            self.wordCloudAction = QAction(icon, "Generate Word Cloud", self.iface.mainWindow())
             self.wordCloudAction.triggered.connect(self.showWordCloudDialog)
             self.iface.addPluginToWebMenu("D3 Data Visualization", self.wordCloudAction)
+            self.iface.addWebToolBarIcon(self.wordCloudAction)
 
     def unload(self):
         self.iface.removePluginWebMenu("D3 Data Visualization", self.heatmapAction)
         self.iface.removeWebToolBarIcon(self.heatmapAction)
         if has_wordcloud:
             self.iface.removePluginWebMenu("D3 Data Visualization", self.wordCloudAction)
+            self.iface.removeWebToolBarIcon(self.wordCloudAction)
     
     def showHeatmapDialog(self):
         """Display the circular date/time heatmap dialog box"""
