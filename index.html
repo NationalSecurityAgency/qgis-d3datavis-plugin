@@ -36,8 +36,10 @@ code {
 </style>
 </head>
 <body>
+<h1>QGIS Data Visualization</h1>
+<p>This plugin consists of a D3 circular histogram heatmap using date, time, and custom categories in the data. It also has an experimental word cloud generator, but requires adding additional python libraries and uninstalling and reinstalling the <strong><em>pillow</em></strong> python library.</p>
 <h1>QGIS D3 Date and Time Heatmap</h1>
-<p>This plugin creates a D3 circular histogram heatmap using date, time, and custom categories in the data. An optional legend can be included. </p>
+<p>This creates a D3 circular histogram heatmap using date, time, and custom categories in the data. An optional legend can be included. </p>
 <p>The plugin works by counting the number of date/time/category events using two axis and displays the results as a circular heatmap. It allows you to analyze the temporal distribution of data and how much of it exists across time, based on two frequencies.</p>
 <h2>QGIS Layer Tab</h2>
 <p>This tab is for choosing the vector layer that will be used for generating the heatmap chart. Additionally, date and time fields are selected. A field representing a category can be specified and the axis of the resulting chart is configured.</p>
@@ -93,9 +95,6 @@ code {
 <p>These are settings for fine control over the heatmap color ramp and <strong>No Data Color</strong></p>
 <div style="text-align:center"><img src="help/colormap.jpg" alt="Colors Tab"></div>
 
-<h1>Suggestions</h1>
-<p>Please send any suggestions to adenaculture@gmail.com or submit a ticket to the
-<a href="https://github.com/NationalSecurityAgency/qgis-d3datavis-plugin/issues">D3DataVis Issue tracker</a></p>
 <h1>Tutorial Examples</h1>
 <p>These examples make use of the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2">2006 Chicago crime data</a>. In 2006 there were 367,968 crime incidents. That is a lot of crime during a year in just one city. Although this author is not trained in crime, some basic conclusions can be obtained by looking at the crime incidents based on the Month of the Year, Time of the Day, and Day of the Week. Here are the examples.</p>
 <h3>Month of the year vs. day of the week.</h3>
@@ -123,4 +122,13 @@ code {
 <li><strong>Custom Category</strong> - <em>Primary Ty</em></li>
 </ul>
 <p>This shows the resulting chart that is created.</p>
-<div style="text-align:center"><img src="help/category.jpg" alt="Hour of the day vs custom crime category"></div></body>
+<div style="text-align:center"><img src="help/category.jpg" alt="Hour of the day vs custom crime category"></div>
+
+<h1>Generate Word Cloud</h1>
+<p>This is an experimental algorithm that generates a word cloud image. It will not be available by default because the python worldcloud library needs to be installed first. This is done by opening the <strong>OSGeo4W Shell</strong> and then running the command <strong><em>pip install wordcloud</em></strong>. You can then launch QGIS and <strong><em>Generate Word Cloud</em></strong> will be added to the menu. If you get an error message that says "<strong><em>ImportError: The _imagingft C module is not installed</em></strong>", you will need to run the command <strong><em>pip uninstall pillow</em></strong> and then <strong><em>pip install pillow</em></strong>. There seems to be some problem with the pillow library in QGIS. This requires system administrator privileges. On Windows find the <em>OSGeo4W Shell</em> in the <em>Start</em> menu. Right-mouse click on <em>OSGeo4W Shell</em>, click on <em>More</em> and then click on <em>Open file location</em>. Find the <em>OSGeo4W Shell</em> in the file browser window and right-mouse click on it and select <strong><em>Run as administrator</em></strong>. This will put you in administrator mode when you uninstall and reinstall <strong><em>pillow</em></strong>.</p>
+<p>This algorithm generates a word cloud from one of the string attributes of a vector layer. It takes all of the attribute string values and generates a word cloud from them. The parameters are fairly self explanatory.</p>
+<p>This is an example of the algorithm, run on the Natural Earth airport shapefile with the airport name field used as the selected attribute:</p>
+<div style="text-align:center"><img src="help/wc_algorithm.jpg" alt="Word cloud"></div>
+
+<p>This is the resulting output.</p>
+<div style="text-align:center"><img src="help/wc_results.png" alt="Word cloud"></div></body>
