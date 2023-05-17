@@ -1,5 +1,8 @@
+# QGIS Data Visualization
+This plugin consists of a D3 circular histogram heatmap using date, time, and custom categories in the data. It also has an experimental word cloud generator, but requires adding additional python libraries and uninstalling and reinstalling the ***pillow*** python library.
+
 # QGIS D3 Date and Time Heatmap
-This plugin creates a D3 circular histogram heatmap using date, time, and custom categories in the data. An optional legend can be included. 
+This creates a D3 circular histogram heatmap using date, time, and custom categories in the data. An optional legend can be included. 
 
 The plugin works by counting the number of date/time/category events using two axis and displays the results as a circular heatmap. It allows you to analyze the temporal distribution of data and how much of it exists across time, based on two frequencies.
 
@@ -59,10 +62,6 @@ These are settings for fine control over the heatmap color ramp and **No Data Co
 
 <div style="text-align:center"><img src="help/colormap.jpg" alt="Colors Tab"></div>
 
-# Suggestions
-Please send any suggestions to adenaculture@gmail.com or submit a ticket to the
-[D3DataVis Issue tracker](https://github.com/NationalSecurityAgency/qgis-d3datavis-plugin/issues)
-
 # Tutorial Examples
 These examples make use of the [2006 Chicago crime data](https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2). In 2006 there were 367,968 crime incidents. That is a lot of crime during a year in just one city. Although this author is not trained in crime, some basic conclusions can be obtained by looking at the crime incidents based on the Month of the Year, Time of the Day, and Day of the Week. Here are the examples.
 
@@ -102,3 +101,17 @@ Set the following to:
 This shows the resulting chart that is created.
 
 <div style="text-align:center"><img src="help/category.jpg" alt="Hour of the day vs custom crime category"></div>
+
+# Generate Word Cloud
+This is an experimental algorithm that generates a word cloud image. It will not be available by default because the python worldcloud library needs to be installed first. This is done by opening the **OSGeo4W Shell** and then running the command ***pip install wordcloud***. You can then launch QGIS and ***Generate Word Cloud*** will be added to the menu. If you get an error message that says "***ImportError: The _imagingft C module is not installed***", you will need to run the command ***pip uninstall pillow*** and then ***pip install pillow***. There seems to be some problem with the pillow library in QGIS. This requires system administrator privileges. On Windows find the *OSGeo4W Shell* in the *Start* menu. Right-mouse click on *OSGeo4W Shell*, click on *More* and then click on *Open file location*. Find the *OSGeo4W Shell* in the file browser window and right-mouse click on it and select ***Run as administrator***. This will put you in administrator mode when you uninstall and reinstall ***pillow***.
+
+This algorithm generates a word cloud from one of the string attributes of a vector layer. It takes all of the attribute string values and generates a word cloud from them. The parameters are fairly self explanatory.
+
+This is an example of the algorithm, run on the Natural Earth airport shapefile with the airport name field used as the selected attribute:
+
+<div style="text-align:center"><img src="help/wc_algorithm.jpg" alt="Word cloud"></div>
+
+This is the resulting output.
+
+<div style="text-align:center"><img src="help/wc_results.png" alt="Word cloud"></div>
+
