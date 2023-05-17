@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>333</width>
-    <height>333</height>
+    <width>374</width>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,6 +33,20 @@
    </item>
    <item>
     <widget class="QgsFieldComboBox" name="attrFieldComboBox"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Output PNG image (If not specified, display in window)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QgsFileWidget" name="outputFileWidget">
+     <property name="dialogTitle">
+      <string>Output PNG Image</string>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QFormLayout" name="formLayout">
@@ -163,6 +177,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="transparentCheckBox">
+     <property name="text">
+      <string>Use transparent background</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -192,6 +213,11 @@
    <class>QgsFieldComboBox</class>
    <extends>QComboBox</extends>
    <header>qgsfieldcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsFileWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsfilewidget.h</header>
   </customwidget>
   <customwidget>
    <class>QgsMapLayerComboBox</class>
