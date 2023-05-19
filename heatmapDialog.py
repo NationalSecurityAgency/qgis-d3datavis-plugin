@@ -12,7 +12,7 @@ from qgis.core import Qgis, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsVector
 from qgis.gui import QgsColorButton
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'heatmapdialog.ui'))
+    os.path.dirname(__file__), 'ui/heatmapdialog.ui'))
 
 OPTIONMENU = ['Year', 'Month', 'Day of Month', 'Day of Week', 'Hour of Day', 'Custom Category Field']
 

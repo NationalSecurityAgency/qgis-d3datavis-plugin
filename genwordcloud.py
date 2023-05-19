@@ -9,7 +9,7 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 FORM_CLASS, _ = loadUiType(os.path.join(
-    os.path.dirname(__file__), 'wordcloud.ui'))
+    os.path.dirname(__file__), 'ui/wordcloud.ui'))
         
 class WordCloudDialog(QDialog, FORM_CLASS):
     def __init__(self, iface, parent):
