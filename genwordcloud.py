@@ -1,81 +1,172 @@
 import os
+from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtGui import QIcon
 
-from qgis.PyQt.uic import loadUiType
-from qgis.PyQt.QtWidgets import QDialog
-from qgis.core import Qgis, QgsFieldProxyModel, QgsMapLayerProxyModel
-from qgis.gui import QgsFileWidget
+from qgis.core import (
+    QgsProcessing,
+    QgsProcessingException,
+    QgsProcessingAlgorithm,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterColor,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterFileDestination,
+    QgsProcessingParameterField)
 
 from wordcloud import WordCloud
-import matplotlib.pyplot as plt
 
-FORM_CLASS, _ = loadUiType(os.path.join(
-    os.path.dirname(__file__), 'ui/wordcloud.ui'))
-        
-class WordCloudDialog(QDialog, FORM_CLASS):
-    def __init__(self, iface, parent):
-        """ Constructor to initialize the word cloud dialog box """
-        super(WordCloudDialog, self).__init__(parent)
-        self.setupUi(self)
-        self.iface = iface
-        self.layerComboBox.layerChanged.connect(self.layerChanged)
-        self.layerComboBox.setFilters(QgsMapLayerProxyModel.VectorLayer)
-        self.attrFieldComboBox.setFilters(QgsFieldProxyModel.String)
-        self.font_path = os.path.join(os.path.dirname(__file__), 'font/DroidSansMono.ttf')
-        self.outputFileWidget.setStorageMode(QgsFileWidget.SaveFile)
-        self.outputFileWidget.setFilter('*.png')
+class WordCloudAlgorithm(QgsProcessingAlgorithm):
 
-    def showEvent(self, e):
-        self.layerChanged()
+    def initAlgorithm(self, config):
+        self.addParameter(
+            QgsProcessingParameterFeatureSource('INPUT', 'Input layer', [QgsProcessing.TypeVector])
+        )
+        self.addParameter(
+            QgsProcessingParameterField(
+                'ATTRIBUTE',
+                'Select attribute field for word cloud',
+                parentLayerParameterName='INPUT',
+                type=QgsProcessingParameterField.String
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                'WIDTH',
+                'Output image width',
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=500
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                'HEIGHT',
+                'Output image height',
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=500
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                'MAX_WORDS',
+                'Maximum number of words',
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=200
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                'MIN_FONT',
+                'Minimum font size',
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=4
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                'MAX_FONT',
+                'Maximum font size (0 = Automatic sizing)',
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=0
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                'MIN_WORD_LEN',
+                'Minimum word length',
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=0
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterColor(
+                'BACKGROUND',
+                'Background color',
+                defaultValue='#000000'
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterBoolean (
+                'TRANSPARENT',
+                'Use transparent background',
+                False,
+                optional=False)
+        )
+        self.addParameter(
+            QgsProcessingParameterFileDestination(
+                'OUTPUT',
+                'Output word clould image',
+                fileFilter='(*.png *.tif *.svg)')
+        )
 
-    def layerChanged(self):
-        if not self.isVisible():
-            return
-        layer = self.layerComboBox.currentLayer()
-        self.attrFieldComboBox.setLayer(layer)
-            
-    def accept(self):
-        if self.layerComboBox.count() == 0:
-            return
-        layer = self.layerComboBox.currentLayer()
-        field_col = layer.fields().lookupField(self.attrFieldComboBox.currentField())
-        if field_col == -1:
-            self.iface.messageBar().pushMessage("", "No string field available", level=Qgis.Warning, duration=3)
-            return
-        output_image = self.outputFileWidget.filePath()
-        width = self.widthSpinBox.value()
-        height = self.heightSpinBox.value()
-        max_words = self.maxWordsSpinBox.value()
-        min_font_size = self.minFontSpinBox.value()
-        max_font_size = self.maxFontSpinBox.value()
+    def processAlgorithm(self, parameters, context, feedback):
+        output = self.parameterAsFileOutput(parameters, 'OUTPUT', context)
+        source = self.parameterAsSource(parameters, 'INPUT', context)
+        if 'ATTRIBUTE' not in parameters or parameters['ATTRIBUTE'] is None:
+            raise QgsProcessingException('Input must include a string attribute')
+        else:
+            attr = self.parameterAsString(parameters, 'ATTRIBUTE', context)
+        width = self.parameterAsInt(parameters, 'WIDTH', context)
+        height = self.parameterAsInt(parameters, 'HEIGHT', context)
+        max_words = self.parameterAsInt(parameters, 'MAX_WORDS', context)
+        min_font_size = self.parameterAsInt(parameters, 'MIN_FONT', context)
+        max_font_size = self.parameterAsInt(parameters, 'MAX_FONT', context)
         if max_font_size == 0:
             max_font_size = None
-        min_word_length = self.minWordLengthSpinBox.value()
-        transparent = self.transparentCheckBox.isChecked()
+        min_word_length = self.parameterAsInt(parameters, 'MIN_WORD_LEN', context)
+        transparent = self.parameterAsBoolean(parameters, 'TRANSPARENT', context)
         if transparent:
-            background_color = None
+            bg_color = None
             mode = 'RGBA'
         else:
-            background_color = self.backgroundLineEdit.text().strip()
+            bg_color = self.parameterAsColor(parameters, 'BACKGROUND', context).name()
             mode = 'RGB'
-        
+
         lines = []
-        iter = layer.getFeatures()
-        for f in iter:
-            s = f[field_col]
+        total = 100.0 / source.featureCount() if source.featureCount() else 0
+        iterator = source.getFeatures()
+        for cnt, f in enumerate(iterator):
+            if feedback.isCanceled():
+                break
+            s = f[attr]
             if s:
                 s = s.strip()
                 if s:
                     lines.append(s)
+            if cnt % 100 == 0:
+                feedback.setProgress(int(cnt * total))
         text = ', '.join(lines)
-        wordcloud = WordCloud(font_path=self.font_path, width=width, height=height, min_font_size=min_font_size,
+        wordcloud = WordCloud(width=width, height=height, min_font_size=min_font_size,
             max_font_size=max_font_size, max_words=max_words, min_word_length=min_word_length,
-            background_color=background_color, mode=mode).generate(text)
-        if output_image:
-            image = wordcloud.to_image()
-            image.save(output_image)
-        else:
-            plt.figure()
-            plt.imshow(wordcloud, interpolation='bilinear')
-            plt.axis("off")
-            plt.show()
+            background_color=bg_color, mode=mode).generate(text)
 
+        if output.lower().endswith('.svg'):
+            try:
+                wordcloud_svg = wordcloud.to_svg(embed_font=True)
+                f = open(output,"w")
+                f.write(wordcloud_svg)
+                f.close()
+            except Exception:
+                pass
+        else:
+            image = wordcloud.to_image()
+            image.save(output)
+
+        return({})
+
+    def name(self):
+        return 'wordcloud'
+
+    def icon(self):
+        return QIcon(os.path.dirname(__file__) + '/icons/wordcloud.svg')
+
+    def displayName(self):
+        return 'Word cloud from attribute'
+
+    def helpUrl(self):
+        file = os.path.dirname(__file__) + '/index.html'
+        if not os.path.exists(file):
+            return ''
+        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+
+    def createInstance(self):
+        return WordCloudAlgorithm()
