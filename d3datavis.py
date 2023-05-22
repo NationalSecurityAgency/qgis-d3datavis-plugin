@@ -1,6 +1,9 @@
+import os
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+import processing
 
 try:
     from wordcloud import WordCloud
@@ -9,29 +12,40 @@ try:
 except Exception:
     has_wordcloud = False
 
-
-import os.path
+from .provider import DataVisProvider
 
 class D3DataVis:
     heatmapDialog = None
-    wordcloudDialog = None
     def __init__(self, iface):
         self.iface = iface
+        self.provider = DataVisProvider()
 
     def initGui(self):
         """ Initialize the menu and dialog boxes for the D3 heatmap chart """
+        self.toolbar = self.iface.addToolBar('Data Visualization Toolbar')
+        self.toolbar.setObjectName('DataVisToolbar')
+        self.toolbar.setToolTip('Data Visualization Toolbar')
+
         icon = QIcon(os.path.dirname(__file__) + "/icons/icon.png")
         self.heatmapAction = QAction(icon, "Circular Date/Time Heatmap", self.iface.mainWindow())
         self.heatmapAction.triggered.connect(self.showHeatmapDialog)
         self.iface.addPluginToWebMenu("D3 Data Visualization", self.heatmapAction)
-        self.iface.addWebToolBarIcon(self.heatmapAction)
+        self.toolbar.addAction(self.heatmapAction)
         
         if has_wordcloud:
-            icon = QIcon(os.path.dirname(__file__) + "/icons/wordcloud.png")
-            self.wordCloudAction = QAction(icon, "Generate Word Cloud", self.iface.mainWindow())
-            self.wordCloudAction.triggered.connect(self.showWordCloudDialog)
+            icon = QIcon(os.path.dirname(__file__) + "/icons/wordcloud.svg")
+            self.wordCloudAction = QAction(icon, "Word cloud from attribute", self.iface.mainWindow())
+            self.wordCloudAction.triggered.connect(self.wordCloud)
             self.iface.addPluginToWebMenu("D3 Data Visualization", self.wordCloudAction)
-            self.iface.addWebToolBarIcon(self.wordCloudAction)
+            self.toolbar.addAction(self.wordCloudAction)
+            icon = QIcon(os.path.dirname(__file__) + "/icons/wordcloudfile.svg")
+            self.wordCloudFileAction = QAction(icon, "Word cloud from file", self.iface.mainWindow())
+            self.wordCloudFileAction.triggered.connect(self.wordCloudFile)
+            self.iface.addPluginToWebMenu("D3 Data Visualization", self.wordCloudFileAction)
+            self.toolbar.addAction(self.wordCloudFileAction)
+
+            # Add the processing provider
+            QgsApplication.processingRegistry().addProvider(self.provider)
 
         # Help
         icon = QIcon(os.path.dirname(__file__) + '/icons/help.svg')
@@ -41,11 +55,15 @@ class D3DataVis:
 
     def unload(self):
         self.iface.removePluginWebMenu("D3 Data Visualization", self.heatmapAction)
-        self.iface.removeWebToolBarIcon(self.heatmapAction)
+        self.iface.removeToolBarIcon(self.heatmapAction)
         if has_wordcloud:
             self.iface.removePluginWebMenu("D3 Data Visualization", self.wordCloudAction)
-            self.iface.removeWebToolBarIcon(self.wordCloudAction)
+            self.iface.removeToolBarIcon(self.wordCloudAction)
+            self.iface.removePluginWebMenu("D3 Data Visualization", self.wordCloudFileAction)
+            self.iface.removeToolBarIcon(self.wordCloudFileAction)
+            QgsApplication.processingRegistry().removeProvider(self.provider)
         self.iface.removePluginWebMenu('D3 Data Visualization', self.helpAction)
+        del self.toolbar
     
     def showHeatmapDialog(self):
         """Display the circular date/time heatmap dialog box"""
@@ -53,12 +71,12 @@ class D3DataVis:
             from .heatmapDialog import HeatmapDialog
             self.heatmapDialog = HeatmapDialog(self.iface, self.iface.mainWindow())
         self.heatmapDialog.show()
-    
-    def showWordCloudDialog(self):
-        if not self.wordcloudDialog:
-            from .genwordcloud import WordCloudDialog
-            self.wordcloudDialog = WordCloudDialog(self.iface, self.iface.mainWindow())
-        self.wordcloudDialog.show()
+
+    def wordCloud(self):
+        processing.execAlgorithmDialog('datavis:wordcloud', {})
+
+    def wordCloudFile(self):
+        processing.execAlgorithmDialog('datavis:filewordcloud', {})
 
     def help(self):
         '''Display a help page'''
