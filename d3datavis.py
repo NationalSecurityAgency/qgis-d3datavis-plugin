@@ -12,13 +12,10 @@ try:
 except Exception:
     has_wordcloud = False
 
-from .provider import DataVisProvider
-
 class D3DataVis:
     heatmapDialog = None
     def __init__(self, iface):
         self.iface = iface
-        self.provider = DataVisProvider()
 
     def initGui(self):
         """ Initialize the menu and dialog boxes for the D3 heatmap chart """
@@ -45,6 +42,8 @@ class D3DataVis:
             self.toolbar.addAction(self.wordCloudFileAction)
 
             # Add the processing provider
+            from .provider import DataVisProvider
+            self.provider = DataVisProvider()
             QgsApplication.processingRegistry().addProvider(self.provider)
 
         # Help
