@@ -95,7 +95,7 @@ class WordCloudAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterFileDestination(
                 'OUTPUT',
                 'Output word clould image',
-                fileFilter='(*.png *.tif *.svg)')
+                fileFilter='Word cloud files (*.png *.tif *.svg)')
         )
 
     def processAlgorithm(self, parameters, context, feedback):
