@@ -124,11 +124,19 @@ code {
 <p>This shows the resulting chart that is created.</p>
 <div style="text-align:center"><img src="help/category.jpg" alt="Hour of the day vs custom crime category"></div>
 
-<h1>Generate Word Cloud</h1>
-<p>This is an experimental algorithm that generates a word cloud image. It will not be available by default because the python worldcloud library needs to be installed first. This is done by opening the <strong>OSGeo4W Shell</strong> and then running the command <strong><em>pip install wordcloud</em></strong>. You can then launch QGIS and <strong><em>Generate Word Cloud</em></strong> will be added to the menu. If you get an error message that says "<strong><em>ImportError: The _imagingft C module is not installed</em></strong>", you will need to run the command <strong><em>pip uninstall pillow</em></strong> and then <strong><em>pip install pillow</em></strong>. There seems to be some problem with the pillow library in QGIS. This requires system administrator privileges. On Windows find the <em>OSGeo4W Shell</em> in the <em>Start</em> menu. Right-mouse click on <em>OSGeo4W Shell</em>, click on <em>More</em> and then click on <em>Open file location</em>. Find the <em>OSGeo4W Shell</em> in the file browser window and right-mouse click on it and select <strong><em>Run as administrator</em></strong>. This will put you in administrator mode when you uninstall and reinstall <strong><em>pillow</em></strong>.</p>
-<p>This algorithm generates a word cloud from one of the string attributes of a vector layer. It takes all of the attribute string values and generates a word cloud from them. The parameters are fairly self explanatory.</p>
-<p>This is an example of the algorithm, run on the Natural Earth airport shapefile with the airport name field used as the selected attribute:</p>
+<h1>Word Cloud Algorithms</h1>
+<p>These are experimental algorithms that generate word cloud images. They will not be available by default because the python worldcloud library needs to be installed. This is done by opening the <strong>OSGeo4W Shell</strong> and then running the command <strong><em>pip install wordcloud</em></strong>. You can then launch QGIS and the alogirhtms <strong><em>Word cloud from attribute</em></strong> and <strong><em>Word cloud from file</em></strong> will be added to the menu. If you get an error message when you run these algorithms that says "<strong><em>ImportError: The _imagingft C module is not installed</em></strong>", you will need to run the command <strong><em>pip uninstall pillow</em></strong> and then <strong><em>pip install pillow</em></strong>. There seems to be some problem with the pillow library in QGIS. This requires system administrator privileges. On Windows find the <em>OSGeo4W Shell</em> in the <em>Start</em> menu. Right-mouse click on <em>OSGeo4W Shell</em>, click on <em>More</em> and then click on <em>Open file location</em>. Find the <em>OSGeo4W Shell</em> in the file browser window and right-mouse click on it and select <strong><em>Run as administrator</em></strong>. This will put you in administrator mode when you uninstall and reinstall <strong><em>pillow</em></strong>.</p>
+<h2>Word cloud from attritute</h2>
+<p>This algorithm generates a word cloud from one of the string attributes of a vector or table layer. It takes all of the attribute's string values and generates a word cloud from them. The parameters are fairly self explanatory.</p>
+<p>This is an example of the algorithm, run on the Natural Earth airport shapefile with the airport name field used as the selected attribute. The output file can be a PNG, TIFF, or SVG format.</p>
 <div style="text-align:center"><img src="help/wc_algorithm.jpg" alt="Word cloud"></div>
 
 <p>This is the resulting output.</p>
-<div style="text-align:center"><img src="help/wc_results.png" alt="Word cloud"></div></body>
+<div style="text-align:center"><img src="help/wc_results.png" alt="Word cloud"></div>
+
+<h2>Word cloud from file</h2>
+<p>This algorithm generates a word cloud from all the words in a .txt file. This shows the processing algorithm configured to run on US Constitution.</p>
+<div style="text-align:center"><img src="help/wc_file_algorithm.jpg" alt="Word cloud"></div>
+
+<p>This shows the resulting word cloud output generated from the US Constitution.</p>
+<div style="text-align:center"><img src="help/wc_file.png" alt="Word cloud"></div></body>
