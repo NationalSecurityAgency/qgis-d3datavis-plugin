@@ -102,12 +102,13 @@ This shows the resulting chart that is created.
 
 <div style="text-align:center"><img src="help/category.jpg" alt="Hour of the day vs custom crime category"></div>
 
-# Generate Word Cloud
-This is an experimental algorithm that generates a word cloud image. It will not be available by default because the python worldcloud library needs to be installed first. This is done by opening the **OSGeo4W Shell** and then running the command ***pip install wordcloud***. You can then launch QGIS and ***Generate Word Cloud*** will be added to the menu. If you get an error message that says "***ImportError: The _imagingft C module is not installed***", you will need to run the command ***pip uninstall pillow*** and then ***pip install pillow***. There seems to be some problem with the pillow library in QGIS. This requires system administrator privileges. On Windows find the *OSGeo4W Shell* in the *Start* menu. Right-mouse click on *OSGeo4W Shell*, click on *More* and then click on *Open file location*. Find the *OSGeo4W Shell* in the file browser window and right-mouse click on it and select ***Run as administrator***. This will put you in administrator mode when you uninstall and reinstall ***pillow***.
+# Word Cloud Algorithms
+These are experimental algorithms that generate word cloud images. They will not be available by default because the python worldcloud library needs to be installed. This is done by opening the **OSGeo4W Shell** and then running the command ***pip install wordcloud***. You can then launch QGIS and the alogirhtms ***Word cloud from attribute*** and ***Word cloud from file*** will be added to the menu. If you get an error message when you run these algorithms that says "***ImportError: The _imagingft C module is not installed***", you will need to run the command ***pip uninstall pillow*** and then ***pip install pillow***. There seems to be some problem with the pillow library in QGIS. This requires system administrator privileges. On Windows find the *OSGeo4W Shell* in the *Start* menu. Right-mouse click on *OSGeo4W Shell*, click on *More* and then click on *Open file location*. Find the *OSGeo4W Shell* in the file browser window and right-mouse click on it and select ***Run as administrator***. This will put you in administrator mode when you uninstall and reinstall ***pillow***.
 
-This algorithm generates a word cloud from one of the string attributes of a vector layer. It takes all of the attribute string values and generates a word cloud from them. The parameters are fairly self explanatory.
+## Word cloud from attritute
+This algorithm generates a word cloud from one of the string attributes of a vector or table layer. It takes all of the attribute's string values and generates a word cloud from them. The parameters are fairly self explanatory.
 
-This is an example of the algorithm, run on the Natural Earth airport shapefile with the airport name field used as the selected attribute:
+This is an example of the algorithm, run on the Natural Earth airport shapefile with the airport name field used as the selected attribute. The output file can be a PNG, TIFF, or SVG format.
 
 <div style="text-align:center"><img src="help/wc_algorithm.jpg" alt="Word cloud"></div>
 
@@ -115,3 +116,11 @@ This is the resulting output.
 
 <div style="text-align:center"><img src="help/wc_results.png" alt="Word cloud"></div>
 
+## Word cloud from file
+This algorithm generates a word cloud from all the words in a .txt file. This shows the processing algorithm configured to run on US Constitution.
+
+<div style="text-align:center"><img src="help/wc_file_algorithm.jpg" alt="Word cloud"></div>
+
+This shows the resulting word cloud output generated from the US Constitution.
+
+<div style="text-align:center"><img src="help/wc_file.png" alt="Word cloud"></div>
