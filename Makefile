@@ -1,7 +1,7 @@
 PLUGINNAME = d3datavis
 PLUGINS = "$(HOME)"/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/$(PLUGINNAME)
 PY_FILES = __init__.py d3datavis.py filewordcloud.py genwordcloud.py heatmapDialog.py provider.py
-EXTRAS = metadata.txt
+EXTRAS = metadata.txt LICENSE
 D3 = d3/d3.min.js d3/circularHeatChart.js
 
 deploy:

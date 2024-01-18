@@ -2,7 +2,7 @@
 name=D3 Data Visualization
 qgisMinimumVersion=3.4
 description=D3 Date and Time Heatmap & optional word cloud visualization.
-version=3.0.5
+version=3.0.6
 author=C Hamilton
 email=adenaculture@gmail.com
 about=This plugin creates a D3 circular histogram heatmap from date and time fields in the data. It outputs an interactive web page. If the Python wordcloud library is installed in QGIS and the Python pillow library fixed, then it can also generate word clouds from all of the string values from an attribute field or from a .txt file.
@@ -15,6 +15,7 @@ icon=icons/icon.png
 experimental=False
 deprecated=False
 changelog=
+    3.0.6 Include license
     3.0.5 Rearrange code, add file word cloud visualization
     3.0.4 Add optional word cloud visualization
     3.0.3 Add checckbox to use selected features only
